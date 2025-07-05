@@ -7,3 +7,7 @@
 [Simone's AI Declaration](M0_AI_Declaration_Simone_Motwani_301540338.pdf)
 
 [Uttam's AI Declaration](M0_AI_Declaration_Uttam_Sharma_301585546.pdf)
+
+# Milestone 1
+
+[Simone's AI Declaration](M1_AI_Declaration_Simone_Motwani_301540338.pdf)
