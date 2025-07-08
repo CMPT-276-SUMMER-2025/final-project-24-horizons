@@ -10,8 +10,8 @@
 
 # Milestone 1
 
-[Simone's AI Declaration](M1_AI_Declaration_Simone_Motwani_301540338.pdf)
+[Simone's AI Declaration](docs/ai-disclosures/M1/M1_AI_Declaration_Simone_Motwani_301540338.pdf)
 
 # Milestone 1 video
 
-[Simone's AI Declaration](M1Video_AI_Declaration_Simone_Motwani_301540338.pdf)
+[Simone's AI Declaration](M1_Video/M1Video_AI_Declaration_Simone_Motwani_301540338.pdf)
