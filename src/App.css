@@ -1,42 +1,81 @@
-#root {
-  max-width: 1280px;
+.navbar {
+  width: 100%;
+  background: #1a1a1a;
+  color: #fff;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.navbar-container {
+  max-width: 98%; /* I have this so the top nav bar gives padding from the sides*/
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  padding: 0.7em 0.2em; 
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.navbar-logo {
+  font-weight: bold;
+  font-size: 1.2em;
+  flex-shrink: 0;
+  min-width: 0;
+  margin-right: 0.5em;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
+.navbar-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  min-width: 0;
+  justify-content: flex-end;
+}
+
+.navbar-links a {
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 1;
+  font-size: 1em;
+  padding: 0.25em 0.7em;
+}
+
+@media (max-width: 900px) {
+  .navbar-container {
+    padding: 1em 0.5em;
   }
-  to {
-    transform: rotate(360deg);
+}
+
+@media (max-width: 600px) {
+  .navbar-container {
+    padding: 0.7em 0.1em;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3em;
+  }
+  .navbar-links {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .navbar-logo {
+    font-size: 1em;
   }
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
+@media (max-width: 400px) {
+  .navbar-container {
+    padding: 0.5em 0.25em;
   }
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  .navbar-logo {
+    font-size: 1em;
+  }
+  .navbar-links a {
+    font-size: 0.9em;
+    padding: 0.15em 0.3em;
+  }
 }
