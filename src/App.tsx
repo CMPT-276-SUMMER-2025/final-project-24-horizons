@@ -1,9 +1,9 @@
 import './App.css'
 
 const navLinks = [
-  { name: 'Home', href: '#' },
-  { name: 'About', href: '#' },
-  { name: 'Contact', href: '#' },
+  { name: 'Dashboard', href: '#' },
+  { name: 'Calendar', href: '#' },
+  { name: 'Settings', href: '#' },
 ]
 
 function Navbar() {
@@ -26,7 +26,7 @@ function App() {
     <>
       <Navbar />
       <div style={{ marginTop: '70px' }}>
-        {/* Main content goes here */}
+        {/* once we figure out the other pages, we'll add the code here*/}
       </div>
     </>
   )
