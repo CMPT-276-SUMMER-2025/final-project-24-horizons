@@ -1,7 +1,9 @@
 import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
+import Dashboard from './pages/Dashboard'
 
 const navLinks = [
-  { name: 'Dashboard', href: '#' },
+  { name: 'Dashboard', href: '/dashboard' },
   { name: 'Calendar', href: '#' },
   { name: 'Settings', href: '#' },
 ]
@@ -23,12 +25,15 @@ function Navbar() {
 
 function App() {
   return (
-    <>
+    <Router>
       <Navbar />
       <div style={{ marginTop: '70px' }}>
-        {/* once we figure out the other pages, we'll add the code here*/}
+        <Routes>
+          <Route path="/dashboard" element={<Dashboard />} />
+          {/* Add other routes */}
+        </Routes>
       </div>
-    </>
+    </Router>
   )
 }
 

@@ -1,0 +1,68 @@
+@keyframes floatIn { /* Opening animation */
+  from {
+    opacity: 0;
+    transform: translateY(120px) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Make 6 grid squares */
+  grid-template-rows: repeat(2, 1fr);
+  gap: 60px;
+  width: 100vw;
+  height: calc(100vh - 100px); /* Account for navbar height */
+  padding: 5px 32px 24px;
+  box-sizing: border-box;
+  align-items: center;
+}
+
+.dashboard-widget {
+  background: var(--color-gray) ;
+  border-radius: 12px;
+  box-shadow: 3px 6px 8px color-mix(in srgb, var(--color-accent) 34%, transparent);
+  border: 1px solid var(--color-accent);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow grid items to shrink below content size */
+  height: 100%;
+  justify-content: flex-start;
+  color: var(--color-bg);
+  animation: floatIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.dashboard-widget:hover {
+  transform: scale(1.05);
+  z-index: 1; /* Bring hovered widget to front */
+}
+
+.widget-row {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-bg);
+}
+
+.widget-row:last-child {
+  border-bottom: none; /* No border for last widget row */
+}
+
+.quick-action-btn {
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in srgb, var(--color-bg) 34%, transparent);
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font-weight: bold;
+  transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1), background 0.3s, color 0.3s;
+}
+
+.quick-action-btn:hover {
+  transform: scale(1.03);
+  background: var(--color-primary);
+  color: var(--color-dark);
+}
+
