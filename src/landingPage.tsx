@@ -1,7 +1,7 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
-export function landingPage() {
+export function LandingPage() {
   return (
     <div className="landing-page">
       <h1>Welcome to Our Application</h1>
@@ -18,6 +18,7 @@ export function landingPage() {
         onError={() => {
           console.log("Login Failed");
         }}
+        auto_select={true}
       />
     </div>
   );

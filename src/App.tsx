@@ -1,5 +1,5 @@
 import './App.css'
-import { landingPage } from './landingPage'
+import { LandingPage } from './landingPage'
 
 const navLinks = [
   { name: 'Dashboard', href: '#' },
@@ -27,8 +27,7 @@ function App() {
     <>
       <Navbar />
       <div style={{ marginTop: '70px' }}>
-        {/* once we figure out the other pages, we'll add the code here*/}
-        {landingPage()}
+        <LandingPage />
       </div>
     </>
   )
