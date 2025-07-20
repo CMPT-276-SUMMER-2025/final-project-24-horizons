@@ -13,7 +13,6 @@ function ProtectedRoute({ children }: { children: React.ReactElement }) {
 function App() {
   return (
     <BrowserRouter>
-      <div style={{ marginTop: '70px' }}>
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route
@@ -25,7 +24,6 @@ function App() {
             }
           />
         </Routes>
-      </div>
     </BrowserRouter>
   )
 }
