@@ -26,7 +26,7 @@ export function Dashboard() {
     <>
       <Navbar />
       <div style={{ marginTop: '70px' }}>
-        <h2>Welcome to your dashboard!</h2>
+        <h2>PUT THE DASHBOARD HERE</h2>
         {/* Add more dashboard content here */}
       </div>
     </>
