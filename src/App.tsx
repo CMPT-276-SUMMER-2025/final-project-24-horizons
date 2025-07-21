@@ -1,4 +1,6 @@
 import './App.css'
+import CalendarOnboarding from './components/CalendarOnboarding';
+
 
 const navLinks = [
   { name: 'Dashboard', href: '#' },
@@ -25,7 +27,8 @@ function App() {
   return (
     <>
       <Navbar />
-      <div style={{ marginTop: '70px' }}>
+      <div style={{ margin: '0px' }}>
+        <CalendarOnboarding />
         {/* once we figure out the other pages, we'll add the code here*/}
       </div>
     </>
