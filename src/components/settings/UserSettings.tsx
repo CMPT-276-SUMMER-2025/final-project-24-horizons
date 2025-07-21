@@ -4,8 +4,8 @@ function UserSettings() {
       <h2>User Settings</h2>
       <div className="settings-group">
         <div className="setting-item">
-          <label>Username</label>
-          <input type="text" value="myusername" />
+          <label>Name</label>
+          <input type="text" value="yourname" />
         </div>
         <div className="setting-item">
           <label>Email</label>

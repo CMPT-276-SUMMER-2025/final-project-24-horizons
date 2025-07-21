@@ -1,17 +1,19 @@
-function ReminderCard() {
+type ReminderCardProps = {
+  onStart: () => void;
+};
+
+const ReminderCard = ({ onStart }: ReminderCardProps) => {
   return (
-    <section className="settings-section reminder-panel">
+    <section className="settings-section">
       <h2>Reminder</h2>
-      <div className="reminder-box">
-        <p className="reminder-title">Time to study!</p>
-        <p>Ready for your 25‑minute session?</p>
-        <div className="reminder-buttons">
-          <button>Start</button>
-          <button>Snooze</button>
-        </div>
+      <h3>Time to study!</h3>
+      <p>Ready for your 25-minute session?</p>
+      <div className="button-group">
+        <button className="start-button" onClick={onStart}>Start</button>
+<button className="snooze-button">Snooze</button>
       </div>
     </section>
   );
-}
+};
 
 export default ReminderCard;

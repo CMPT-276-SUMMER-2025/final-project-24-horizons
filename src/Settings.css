@@ -93,12 +93,12 @@
   padding: 8px;
   border: none;
   border-radius: 6px;
-  background: var(--color-bg);       /* already correct */
-  color: var(--color-text);            /* changed from #f2f2f2 */
+  background: var(--color-bg);       
+  color: var(--color-text);            
 }
 
 .reminder-panel .reminder-box {
-  background-color: var(--color-gray);
+  background-color: var(--color-bg);
   color: var(--color-bg);
 }
 
@@ -115,10 +115,52 @@
 
 .reminder-buttons button {
   padding: 8px 16px;
-  background-color: var(--color-primary); /* was #a78bfa */
+  background-color: var(--color-primary); 
   border: none;
   border-radius: 6px;
   color: #fff;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.logout-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 60px; /* increase for more space */
+}
+
+.logout-button {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logout-button:hover {
+  transform: scale(1.05);
+}
+
+.start-button {
+  background-color: var(--color-accent);
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.snooze-button {
+  background-color: #A78BFA; /* soft purple */
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
 }
