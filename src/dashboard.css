@@ -12,11 +12,11 @@
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Make 6 grid squares */
-  grid-template-rows: repeat(2, 1fr);
+  grid-template-rows: repeat(2, minmax(200px, 1fr)); /* Flexible rows with minimum height */
   gap: 60px;
   width: 100vw;
-  height: calc(100vh - 100px); /* Account for navbar height */
-  padding: 5px 32px 24px;
+  min-height: calc(100vh - 100px); /* Use min-height instead of height to allow scrolling */
+  padding: 5px 32px 40px;
   box-sizing: border-box;
   align-items: center;
 }
@@ -34,6 +34,8 @@
   color: var(--color-bg);
   animation: floatIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
   transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden; /* Prevent content from overflowing widget boundaries */
+  overflow-wrap: break-word; /* Break long words to fit container */
 }
 
 .dashboard-widget:hover {
@@ -64,5 +66,33 @@
   transform: scale(1.03);
   background: var(--color-primary);
   color: var(--color-dark);
+}
+
+/* Responsive grid for smaller screens */
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr; /* Single column on mobile */
+    grid-template-rows: auto; 
+    padding: 20px 20px 40px;
+    height: auto;
+  }
+  
+  .dashboard-widget:hover {
+    transform: none; /* Disable hover effect on mobile */
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
+    grid-template-rows: auto;
+    padding: 20px 32px 40px;
+    min-height: calc(100vh - 100px);
+  }
+  
+  .dashboard-widget:hover {
+    transform: none; /* Disable hover effect on tablets */
+  }
 }
 
