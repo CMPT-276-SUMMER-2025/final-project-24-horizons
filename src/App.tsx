@@ -1,11 +1,14 @@
 import './App.css'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Settings from './Settings';
+
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import Dashboard from './pages/Dashboard'
+import Settings from './pages/Settings';
+
 const navLinks = [
-  { name: 'Dashboard', href: '/' },
-  { name: 'Calendar', href: '/calendar' },
+  { name: 'Dashboard', href: '/dashboard' },
+  { name: 'Calendar', href: '#' },
   { name: 'Settings', href: '/settings' },
-];
+]
 
 
 function Navbar() {
@@ -31,13 +34,14 @@ function App() {
       <Navbar />
       <div style={{ marginTop: '70px' }}>
         <Routes>
-          <Route path="/"/>
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/calendar" element={<h2>Calendar Page</h2>} />
           <Route path="/settings" element={<Settings />} />
         </Routes>
       </div>
     </Router>
   );
+      
 }
 
 
