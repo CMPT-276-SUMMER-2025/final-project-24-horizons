@@ -1,10 +1,12 @@
 import './App.css'
-
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Settings from './Settings';
 const navLinks = [
-  { name: 'Dashboard', href: '#' },
-  { name: 'Calendar', href: '#' },
-  { name: 'Settings', href: '#' },
-]
+  { name: 'Dashboard', href: '/' },
+  { name: 'Calendar', href: '/calendar' },
+  { name: 'Settings', href: '/settings' },
+];
+
 
 function Navbar() {
   return (
@@ -13,7 +15,7 @@ function Navbar() {
         <div className="navbar-logo">StudySync</div>
         <div className="navbar-links">
           {navLinks.map(link => (
-            <a key={link.name} href={link.href}>{link.name}</a>
+            <Link key={link.name} to={link.href}>{link.name}</Link>
           ))}
         </div>
       </div>
@@ -21,15 +23,22 @@ function Navbar() {
   )
 }
 
+
+
 function App() {
   return (
-    <>
+    <Router>
       <Navbar />
       <div style={{ marginTop: '70px' }}>
-        {/* once we figure out the other pages, we'll add the code here*/}
+        <Routes>
+          <Route path="/"/>
+          <Route path="/calendar" element={<h2>Calendar Page</h2>} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
       </div>
-    </>
-  )
+    </Router>
+  );
 }
+
 
 export default App
