@@ -1,25 +1,73 @@
+@keyframes floatIn { /* Opening animation */
+  from {
+    opacity: 0;
+    transform: translateY(120px) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .settings-page {
-  background-color: #2c3440;
-  color: #f2f2f2;
+  width: 100%;
+  background-color: var(--color-dark);
+  color: var(--color-bg);           
   padding: 30px;
   min-height: 100vh;
 }
 
-.settings-page h1 {
+.settings-title {
   font-size: 32px;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
 }
 
 .settings-grid {
   display: grid;
-  grid-template-columns: 2fr 2fr 1fr;
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns at full width */
+  gap: 24px;
 }
 
+/* Two columns on medium screens */
+@media (max-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Single column on small screens */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
 .settings-section {
-  background-color: #3a414d;
-  padding: 20px;
+  background: var(--color-gray) ;
   border-radius: 12px;
+  box-shadow: 3px 6px 8px color-mix(in srgb, var(--color-accent) 34%, transparent);
+  border: 1px solid var(--color-accent);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow grid items to shrink below content size */
+  height: 100%;
+  color: var(--color-bg);
+  padding: 20px;
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: floatIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.setting-item input::placeholder {
+  color: var(--color-text);
+  opacity: 1;
+}
+
+
+.settings-section:hover {
+  transform: scale(1.05);
+  z-index: 1;
 }
 
 .settings-group {
@@ -45,15 +93,13 @@
   padding: 8px;
   border: none;
   border-radius: 6px;
-  background-color: #555e6b;
-  color: #f2f2f2;
+  background: var(--color-bg);       /* already correct */
+  color: var(--color-text);            /* changed from #f2f2f2 */
 }
 
 .reminder-panel .reminder-box {
-  background-color: #444b58;
-  padding: 20px;
-  border-radius: 10px;
-  text-align: center;
+  background-color: var(--color-gray);
+  color: var(--color-bg);
 }
 
 .reminder-title {
@@ -69,7 +115,7 @@
 
 .reminder-buttons button {
   padding: 8px 16px;
-  background-color: #a78bfa;
+  background-color: var(--color-primary); /* was #a78bfa */
   border: none;
   border-radius: 6px;
   color: #fff;
