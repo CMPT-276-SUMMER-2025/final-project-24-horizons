@@ -1,10 +1,11 @@
-import '../dashboard.css';
+import './dashboard.css';
 import TodaysSchedule from '../components/dashboard/TodaysSchedule';
 import QuickActions from '../components/dashboard/QuickActions';
 import Upcoming from '../components/dashboard/Upcoming';
 import Goals from '../components/dashboard/Goals';
 import PersonalNotes from '../components/dashboard/PersonalNotes';
 import AISuggestions from '../components/dashboard/AISuggestions';
+import Navbar from '../components/navBar';
 
 function Dashboard() { /* Array of widget components */
   const widgetComponents = [
@@ -17,15 +18,18 @@ function Dashboard() { /* Array of widget components */
   ];
 
   return ( /* Iterating over array to display elements */
-    <div className="dashboard-page">
-      <div className="dashboard-grid">
-        {widgetComponents.map((Component, i) => ( 
-          <div className="dashboard-widget" key={i} style={{ padding: '16px' }}>
-            {Component}
-          </div>
-        ))}
+    <>
+      <Navbar />
+      <div className="dashboard-page" style={{ marginTop: '70px' }}>
+        <div className="dashboard-grid">
+          {widgetComponents.map((Component, i) => ( 
+            <div className="dashboard-widget" key={i} style={{ padding: '16px' }}>
+              {Component}
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

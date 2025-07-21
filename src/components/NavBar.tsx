@@ -1,4 +1,4 @@
-import './dashboard.css'
+import './NavBar.css';
 
 const navLinks = [
   { name: 'Dashboard', href: '#' },
@@ -21,14 +21,4 @@ function Navbar() {
   )
 }
 
-export function Dashboard() {
-  return (
-    <>
-      <Navbar />
-      <div style={{ marginTop: '70px' }}>
-        <h2>PUT THE DASHBOARD HERE</h2>
-        {/* Add more dashboard content here */}
-      </div>
-    </>
-  )
-}
+export default Navbar;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { LandingPage } from './LandingPage';
-import { Dashboard } from './dashboard'
+import Dashboard from './pages/Dashboard'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
