@@ -5,7 +5,7 @@ import Upcoming from '../components/dashboard/Upcoming';
 import Goals from '../components/dashboard/Goals';
 import PersonalNotes from '../components/dashboard/PersonalNotes';
 import AISuggestions from '../components/dashboard/AISuggestions';
-import Navbar from '../components/navBar';
+import Navbar from '../components/NavBar';
 
 function Dashboard() { /* Array of widget components */
   const widgetComponents = [
