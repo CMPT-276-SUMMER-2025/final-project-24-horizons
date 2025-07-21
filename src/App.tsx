@@ -1,5 +1,5 @@
 import React from 'react';
-import { LandingPage } from './LandingPage'
+import { LandingPage } from './LandingPage';
 import { Dashboard } from './dashboard'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 
@@ -22,7 +22,7 @@ function App() {
                 <Dashboard />
               </ProtectedRoute>
             }
-          />
+          /> 
         </Routes>
     </BrowserRouter>
   )
