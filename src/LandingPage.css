@@ -41,4 +41,52 @@
   width: 100%;
   display: flex;
   justify-content: center;
+  position: relative; /* Add this for the overlay positioning */
+}
+
+.landing-loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.landing-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-primary);
+  border-top: 3px solid var(--color-accent);
+  border-radius: 50%;
+  animation: landing-spin 1s linear infinite;
+}
+
+.landing-loading-text {
+  color: var(--color-primary);
+  font-weight: 500;
+  font-size: 1em;
+  letter-spacing: 0.02em;
+}
+
+@keyframes landing-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Make Google button disabled state look better */
+.landing-login-btn button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.landing-loading-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  z-index: 10;
 }
