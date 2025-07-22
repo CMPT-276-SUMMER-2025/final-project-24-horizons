@@ -52,7 +52,7 @@ app.use(helmet({
 }));
 
 // JWT Secret
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(64).toString('hex');
+const JWT_SECRET = process.env.JWT_SECRET;
 
 // Verify Google token and create session
 app.post('/api/auth/google', async (req, res) => {
