@@ -53,7 +53,7 @@ app.use(cors({
   origin: [
     process.env.CLIENT_URL || 'http://localhost:5173',
     'https://studysync-backend.uttamsharma.com',
-    'https://studysync-ai.netlify.app/'
+    'https://studysync-ai.netlify.app'
     // Add any other domains you want to allow
   ],
   credentials: true
