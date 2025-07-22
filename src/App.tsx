@@ -1,41 +1,53 @@
 import React from 'react';
 import { LandingPage } from './LandingPage';
-import Dashboard from './pages/Dashboard'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import Dashboard from './pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
-
-function isAuthenticated() {
-  return !!localStorage.getItem('studysync_user');
-}
+import { AuthProvider, useAuth } from './services/AuthContext';
+import { LoadingScreen } from './components/LoadingScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
-  return isAuthenticated() ? children : <Navigate to="/" replace />;
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  return user ? children : <Navigate to="/" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <ProtectedRoute>
+            <CalendarOnboarding />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
 }
 
 function App() {
   return (
     <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          /> 
-          <Route
-            path="/calendar"
-            element={
-              <ProtectedRoute>
-                <CalendarOnboarding />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
     </BrowserRouter>
-  )
+  );
 }
 
-export default App
+export default App;

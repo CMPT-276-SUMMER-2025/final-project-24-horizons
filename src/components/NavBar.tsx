@@ -1,5 +1,6 @@
 import './NavBar.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../services/AuthContext';
 
 const navLinks = [
   { name: 'Dashboard', to: '/dashboard' },
@@ -8,6 +9,14 @@ const navLinks = [
 ];
 
 function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
@@ -19,6 +28,17 @@ function Navbar() {
             ) : (
               <Link key={link.name} to={link.to}>{link.name}</Link>
             )
+          )}
+          {user && (
+            <button onClick={handleLogout} style={{ 
+              background: 'transparent', 
+              border: 'none', 
+              color: 'var(--color-accent)',
+              cursor: 'pointer',
+              padding: '0.25em 0.7em'
+            }}>
+              Logout
+            </button>
           )}
         </div>
       </div>
