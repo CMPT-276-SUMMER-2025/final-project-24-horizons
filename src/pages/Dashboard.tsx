@@ -20,7 +20,7 @@ function Dashboard() { /* Array of widget components */
   return ( /* Iterating over array to display elements */
     <>
       <Navbar />
-      <div className="dashboard-page" style={{ marginTop: '70px' }}>
+      <div className="dashboard-page">
         <div className="dashboard-grid">
           {widgetComponents.map((Component, i) => ( 
             <div className="dashboard-widget" key={i} style={{ padding: '16px' }}>

@@ -24,6 +24,7 @@ function App() {
               </ProtectedRoute>
             }
           /> 
+          <Route path="/calendar-onboarding" element={<CalendarOnboarding />} />
         </Routes>
     </BrowserRouter>
   )

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './CalendarOnboarding.css';
+import Navbar from '../components/NavBar';
 
 declare global {
   interface Window {
@@ -338,6 +339,7 @@ const CalendarOnboarding: React.FC = () => {
 
   return (
     <>
+      <Navbar />
       <div className="calendar-onboarding-root">
         <div className="calendar-onboarding-grid">
           {/* Left side */}
