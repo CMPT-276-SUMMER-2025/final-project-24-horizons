@@ -9,45 +9,76 @@ export interface User {
 
 class AuthService {
   async loginWithGoogle(googleToken: string): Promise<User> {
-    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      body: JSON.stringify({ token: googleToken }),
-    });
+    console.log('🔐 Attempting Google login...');
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ token: googleToken }),
+      });
 
-    if (!response.ok) {
-      throw new Error('Authentication failed');
+      console.log('📡 Auth response status:', response.status);
+      
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error('❌ Auth failed:', errorData);
+        throw new Error(errorData.error || `Authentication failed (${response.status})`);
+      }
+
+      const data = await response.json();
+      console.log('✅ Login successful for:', data.user.email);
+      return data.user;
+    } catch (error) {
+      console.error('💥 Login error:', error);
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error('Unable to connect to server. Please check your connection.');
+      }
+      throw error;
     }
-
-    const data = await response.json();
-    return data.user;
   }
 
   async getCurrentUser(): Promise<User | null> {
     try {
+      console.log('👤 Checking current user...');
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
         credentials: 'include',
       });
 
       if (!response.ok) {
+        console.log('ℹ️ No valid session found');
         return null;
       }
 
       const data = await response.json();
+      console.log('✅ Current user found:', data.user.email);
       return data.user;
-    } catch {
+    } catch (error) {
+      console.error('❌ Error checking current user:', error);
       return null;
     }
   }
 
   async logout(): Promise<void> {
-    await fetch(`${API_BASE_URL}/api/auth/logout`, {
-      method: 'POST',
-      credentials: 'include',
-    });
+    try {
+      console.log('🚪 Logging out...');
+      const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+        method: 'POST',
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        console.log('✅ Logout successful');
+      } else {
+        console.warn('⚠️ Logout response not OK, but continuing...');
+      }
+    } catch (error) {
+      console.error('❌ Logout error:', error);
+      // Don't throw error for logout - we want to clear local state regardless
+    }
   }
 }
 

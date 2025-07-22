@@ -1,6 +1,6 @@
 import './NavBar.css';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../services/AuthContext';
+import { useAuth } from '../services/authContext';
 
 const navLinks = [
   { name: 'Dashboard', to: '/dashboard' },

@@ -3,7 +3,7 @@ import { LandingPage } from './LandingPage';
 import Dashboard from './pages/Dashboard';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
-import { AuthProvider, useAuth } from './services/AuthContext';
+import { AuthProvider, useAuth } from './services/authContext';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
