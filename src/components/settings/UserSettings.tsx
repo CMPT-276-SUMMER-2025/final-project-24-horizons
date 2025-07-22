@@ -1,15 +1,29 @@
+import { useAuth } from '../../services/authContext';
+
 function UserSettings() {
+  const { user } = useAuth();
+
   return (
     <section className="settings-section">
       <h2>User Settings</h2>
       <div className="settings-group">
         <div className="setting-item">
           <label>Name</label>
-          <input type="text" value="yourname" />
+          <input 
+            type="text" 
+            value={user?.name || ''} 
+            placeholder="Your name"
+            readOnly 
+          />
         </div>
         <div className="setting-item">
           <label>Email</label>
-          <input type="email" placeholder="you@example.com" />
+          <input 
+            type="email" 
+            value={user?.email || ''} 
+            placeholder="you@example.com"
+            readOnly 
+          />
         </div>
         <div className="setting-item">
           <label>Default Study Session</label>

@@ -14,6 +14,7 @@
   background-color: var(--color-dark);
   color: var(--color-bg);           
   padding: 30px;
+  padding-top: 100px; /* Add padding for the fixed navbar */
   min-height: 100vh;
 }
 
@@ -42,7 +43,6 @@
   }
 }
 
-
 .settings-section {
   background: var(--color-gray) ;
   border-radius: 12px;
@@ -63,7 +63,6 @@
   color: var(--color-text);
   opacity: 1;
 }
-
 
 .settings-section:hover {
   transform: scale(1.05);
@@ -95,6 +94,11 @@
   border-radius: 6px;
   background: var(--color-bg);       
   color: var(--color-text);            
+}
+
+.setting-item input[readonly] {
+  background: rgba(250, 249, 246, 0.8);
+  cursor: not-allowed;
 }
 
 .reminder-panel .reminder-box {
