@@ -19,7 +19,13 @@ export function LandingPage() {
     }
   }, [user, navigate]);
 
-  const handleGoogleSuccess = async (credentialResponse: any) => {
+  interface GoogleCredentialResponse {
+    credential?: string;
+    select_by?: string;
+    clientId?: string;
+  }
+
+  const handleGoogleSuccess = async (credentialResponse: GoogleCredentialResponse) => {
     if (!credentialResponse.credential) {
       console.error('❌ No credential returned from Google login');
       setError('Google login failed. Please try again.');

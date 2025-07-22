@@ -4,19 +4,38 @@ import Navbar from '../components/NavBar';
 
 declare global {
   interface Window {
-    gapi: any;
-    google: any;
+    gapi: unknown;
+    google: unknown;
   }
+}
+
+interface ImportedEvent {
+  id: string;
+  title: string;
+  date: Date;
+  time: string;
+  description: string;
+  location: string;
+  type: string;
 }
 
 const CalendarOnboarding: React.FC = () => {
   const [goals, setGoals] = useState<string[]>(['Gym', 'Job/ Project']);
   const [newGoal, setNewGoal] = useState<string>('');
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const [importedEvents, setImportedEvents] = useState<any[]>([]);
+  const [importedEvents, setImportedEvents] = useState<ImportedEvent[]>([]);
+
+  // Add goal handler to use setGoals
+  const addGoal = () => {
+    const trimmedGoal = newGoal.trim();
+    if (trimmedGoal && !goals.includes(trimmedGoal)) {
+      setGoals([...goals, trimmedGoal]);
+      setNewGoal('');
+    }
+  };
   const [selectedDate] = useState<Date>(new Date());
   const [isImporting, setIsImporting] = useState<string | null>(null);
-  const [googleApiLoaded, setGoogleApiLoaded] = useState(false);
+  // Removed unused googleApiLoaded state
 
   const [canvasUrl, setCanvasUrl] = useState<string>('');
   const [icsUrl, setIcsUrl] = useState<string>('');
@@ -24,29 +43,21 @@ const CalendarOnboarding: React.FC = () => {
   React.useEffect(() => {
     const loadGoogleAPI = () => {
       if (document.querySelector('script[src*="apis.google.com"]')) {
-        setGoogleApiLoaded(true);
         return;
       }
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
-      script.onload = () => setGoogleApiLoaded(true);
+      script.onload = () => {};
       script.onerror = () => console.error('Failed to load Google API');
       document.head.appendChild(script);
     };
     loadGoogleAPI();
   }, []);
 
-  const addGoal = (): void => {
-    if (newGoal.trim()) {
-      setGoals([...goals, newGoal.trim()]);
-      setNewGoal('');
-    }
-  };
-
   const parseICSFile = (content: string) => {
-    const events: any[] = [];
+    const events: ImportedEvent[] = [];
     const lines = content.split(/\r?\n/).map(line => line.trim());
-    let currentEvent: any = {};
+    let currentEvent: { [key: string]: string } = {};
     let inEvent = false;
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
@@ -221,10 +232,21 @@ const CalendarOnboarding: React.FC = () => {
       });
       if (!response.ok) throw new Error(`Calendar API request failed: ${response.status} ${response.statusText}`);
       const data = await response.json();
-      const events = data.items?.map((event: any) => ({
+      interface GoogleCalendarEvent {
+        id: string;
+        summary?: string;
+        start: {
+          dateTime?: string;
+          date?: string;
+        };
+        description?: string;
+        location?: string;
+      }
+
+      const events = data.items?.map((event: GoogleCalendarEvent) => ({
         id: event.id,
         title: event.summary || 'No Title',
-        date: new Date(event.start.dateTime || event.start.date),
+        date: new Date(event.start.dateTime || event.start.date || ''),
         time: event.start.dateTime ?
           new Date(event.start.dateTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) :
           'All Day',
@@ -308,7 +330,7 @@ const CalendarOnboarding: React.FC = () => {
           }
         >
           <div className="calendar-onboarding-calendar-day-number">{day}</div>
-          {dayEvents.slice(0, 2).map((event, i) => (
+          {dayEvents.slice(0, 2).map((event) => (
             <div
               key={event.id}
               title={`${event.title} - ${event.time}`}

@@ -4,9 +4,9 @@ import type { User } from '../services/authService';
 
 interface AuthContextType {
   user: User | null;
+  setUser: (user: User | null) => void; // Add this line
   loading: boolean;
   logout: () => Promise<void>;
-  setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,18 +18,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        console.log('🔍 AuthProvider: Checking authentication...');
         const currentUser = await authService.getCurrentUser();
         setUser(currentUser);
-
-        if (currentUser) {
-          console.log('✅ AuthProvider: User authenticated:', currentUser.email);
-        } else {
-          console.log('ℹ️ AuthProvider: No authenticated user');
-        }
       } catch (error) {
-        console.error('❌ AuthProvider: Auth check failed:', error);
-        setUser(null);
+        console.error('Auth check failed:', error);
       } finally {
         setLoading(false);
       }
@@ -40,26 +32,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      console.log('🚪 AuthProvider: Logging out...');
       await authService.logout();
       setUser(null);
-      console.log('✅ AuthProvider: Logout successful');
     } catch (error) {
-      console.error('❌ AuthProvider: Logout failed:', error);
-      // Clear user state even if logout request fails
-      setUser(null);
+      console.error('Logout failed:', error);
     }
   };
 
-  const contextValue = {
-    user,
-    loading,
-    logout,
-    setUser,
-  };
-
   return (
-    <AuthContext.Provider value={contextValue}>
+    <AuthContext.Provider value={{ user, setUser, loading, logout }}> {/* Add setUser here */}
       {children}
     </AuthContext.Provider>
   );

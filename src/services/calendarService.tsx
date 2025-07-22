@@ -57,7 +57,7 @@ class CalendarService {
     }
 
     const data = await response.json();
-    return data.events.map((event: any) => ({
+    return data.events.map((event: CalendarEvent) => ({
       ...event,
       date: new Date(event.date)
     }));
