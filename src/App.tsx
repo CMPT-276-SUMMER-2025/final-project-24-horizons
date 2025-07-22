@@ -1,48 +1,55 @@
-import './App.css'
+import React from 'react';
+import { LandingPage } from './LandingPage';
+import Dashboard from './pages/Dashboard';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import CalendarOnboarding from './pages/CalendarOnboarding';
+import { AuthProvider, useAuth } from './services/authContext';
+import { LoadingScreen } from './components/LoadingScreen';
 
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
-import Dashboard from './pages/Dashboard'
-import Settings from './pages/Settings';
+function ProtectedRoute({ children }: { children: React.ReactElement }) {
+  const { user, loading } = useAuth();
 
-const navLinks = [
-  { name: 'Dashboard', href: '/dashboard' },
-  { name: 'Calendar', href: '#' },
-  { name: 'Settings', href: '/settings' },
-]
+  if (loading) {
+    return <LoadingScreen />;
+  }
 
+  return user ? children : <Navigate to="/" replace />;
+}
 
-function Navbar() {
+function AppRoutes() {
   return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <div className="navbar-logo">StudySync</div>
-        <div className="navbar-links">
-          {navLinks.map(link => (
-            <Link key={link.name} to={link.href}>{link.name}</Link>
-          ))}
-        </div>
-      </div>
-    </nav>
-  )
+    <Routes>
+      <Route path="/" element={<LandingPage />} />
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar"
+        element={
+          <ProtectedRoute>
+            <CalendarOnboarding />
+          </ProtectedRoute>
+        }
+      />
+    </Routes>
+  );
 }
 
 
 
 function App() {
   return (
-    <Router>
-      <Navbar />
-      <div style={{ marginTop: '70px' }}>
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/calendar" element={<h2>Calendar Page</h2>} />
-          <Route path="/settings" element={<Settings />} />
-        </Routes>
-      </div>
-    </Router>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
   );
-      
 }
 
-
-export default App
+export default App;

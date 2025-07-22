@@ -9,16 +9,30 @@
   }
 }
 
+.dashboard-page {
+  background: #2d3748;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  padding-top: 70px; /* Add this line to offset the fixed navbar */
+}
+
 .dashboard-grid {
+  flex: 1 1 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Make 6 grid squares */
   grid-template-rows: repeat(2, minmax(200px, 1fr)); /* Flexible rows with minimum height */
   gap: 60px;
-  width: 100vw;
-  min-height: calc(100vh - 100px); /* Use min-height instead of height to allow scrolling */
+  width: 100%; /* Changed from 100vw to 100% */
+  min-height: 0;
+  height: 100%;
   padding: 5px 32px 40px;
   box-sizing: border-box;
-  align-items: center;
+  align-items: stretch; /* Make widgets stretch to fill grid cells */
 }
 
 .dashboard-widget {
@@ -95,4 +109,3 @@
     transform: none; /* Disable hover effect on tablets */
   }
 }
-
