@@ -1,0 +1,170 @@
+@keyframes floatIn { /* Opening animation */
+  from {
+    opacity: 0;
+    transform: translateY(120px) scale(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.settings-page {
+  width: 100%;
+  background-color: var(--color-dark);
+  color: var(--color-bg);           
+  padding: 30px;
+  padding-top: 100px; /* Add padding for the fixed navbar */
+  min-height: 100vh;
+}
+
+.settings-title {
+  font-size: 32px;
+  margin-bottom: 24px;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 columns at full width */
+  gap: 24px;
+}
+
+/* Two columns on medium screens */
+@media (max-width: 1024px) {
+  .settings-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Single column on small screens */
+@media (max-width: 768px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.settings-section {
+  background: var(--color-gray) ;
+  border-radius: 12px;
+  box-shadow: 3px 6px 8px color-mix(in srgb, var(--color-accent) 34%, transparent);
+  border: 1px solid var(--color-accent);
+  display: flex;
+  flex-direction: column;
+  min-height: 0; /* Allow grid items to shrink below content size */
+  height: 100%;
+  color: var(--color-bg);
+  padding: 20px;
+  transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  animation: floatIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
+  overflow: hidden;
+}
+
+.setting-item input::placeholder {
+  color: var(--color-text);
+  opacity: 1;
+}
+
+.settings-section:hover {
+  transform: scale(1.05);
+  z-index: 1;
+}
+
+.settings-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 45%;
+}
+
+.setting-item label {
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
+.setting-item input,
+.setting-item select {
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  background: var(--color-bg);       
+  color: var(--color-text);            
+}
+
+.setting-item input[readonly] {
+  background: rgba(250, 249, 246, 0.8);
+  cursor: not-allowed;
+}
+
+.reminder-panel .reminder-box {
+  background-color: var(--color-bg);
+  color: var(--color-bg);
+}
+
+.reminder-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.reminder-buttons {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 15px;
+}
+
+.reminder-buttons button {
+  padding: 8px 16px;
+  background-color: var(--color-primary); 
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logout-wrapper {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 60px; /* increase for more space */
+}
+
+.logout-button {
+  background-color: var(--color-accent);
+  color: var(--color-bg);
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.logout-button:hover {
+  transform: scale(1.05);
+}
+
+.start-button {
+  background-color: var(--color-accent);
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.snooze-button {
+  background-color: #A78BFA; /* soft purple */
+  color: white;
+  font-weight: bold;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}

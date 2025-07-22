@@ -1,6 +1,7 @@
 import React from 'react';
 import { LandingPage } from './LandingPage';
 import Dashboard from './pages/Dashboard';
+import Settings from './pages/Settings';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
 import { AuthProvider, useAuth } from './services/authContext';
@@ -33,6 +34,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CalendarOnboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
           </ProtectedRoute>
         }
       />
