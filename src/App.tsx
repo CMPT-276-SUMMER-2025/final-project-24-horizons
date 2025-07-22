@@ -1,37 +1,31 @@
-import './App.css'
-import CalendarOnboarding from './components/CalendarOnboarding';
+import React from 'react';
+import { LandingPage } from './LandingPage';
+import Dashboard from './pages/Dashboard'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import CalendarOnboarding from './pages/CalendarOnboarding';
 
-
-const navLinks = [
-  { name: 'Dashboard', href: '#' },
-  { name: 'Calendar', href: '#' },
-  { name: 'Settings', href: '#' },
-]
-
-function Navbar() {
-  return (
-    <nav className="navbar">
-      <div className="navbar-container">
-        <div className="navbar-logo">StudySync</div>
-        <div className="navbar-links">
-          {navLinks.map(link => (
-            <a key={link.name} href={link.href}>{link.name}</a>
-          ))}
-        </div>
-      </div>
-    </nav>
-  )
+function ProtectedRoute({ children }: { children: React.ReactElement }) {
+  const location = useLocation();
+  // Check if user info exists in location.state
+  const isAuthenticated = location.state && location.state.user;
+  return isAuthenticated ? children : <Navigate to="/" replace />;
 }
 
 function App() {
   return (
-    <>
-      <Navbar />
-      <div style={{ margin: '0px' }}>
-        <CalendarOnboarding />
-        {/* once we figure out the other pages, we'll add the code here*/}
-      </div>
-    </>
+    <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          /> 
+        </Routes>
+    </BrowserRouter>
   )
 }
 

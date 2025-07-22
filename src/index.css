@@ -2,6 +2,7 @@
   --color-primary: #A78BFA;      /* Purple */
   --color-accent: #38B2AC;      /* Teal */
   --color-dark: #2D3748;        /* Dark Gray */
+  --color-gray: #3a475d;      /* Lighter Gray */
   --color-bg: #FAF9F6;          /* Off-white */
   --color-text: #2D3748;        /* Dark text */
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
@@ -25,7 +26,7 @@ body {
   place-items: center; */
   min-width: 320px;
   min-height: 100vh;
-  background: var(--color-bg);
+  background: var(--color-dark);
   color: var(--color-text);
 }
 
@@ -65,3 +66,4 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
