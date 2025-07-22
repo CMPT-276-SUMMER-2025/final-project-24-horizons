@@ -15,8 +15,10 @@ export function LandingPage() {
             onSuccess={(credentialResponse) => {
               if (credentialResponse.credential) {
                 const user = jwtDecode(credentialResponse.credential);
-                console.log("Login Success: currentUser:", user);
-                navigate('/dashboard', { state: { user } });
+                // Store user in localStorage
+                localStorage.setItem('studysync_user', JSON.stringify(user));
+                // Navigate to dashboard (no need to pass state)
+                navigate('/dashboard');
               } else {
                 console.log("No credential returned from Google login.");
               }

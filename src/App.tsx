@@ -4,11 +4,12 @@ import Dashboard from './pages/Dashboard'
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import CalendarOnboarding from './pages/CalendarOnboarding';
 
+function isAuthenticated() {
+  return !!localStorage.getItem('studysync_user');
+}
+
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
-  const location = useLocation();
-  // Check if user info exists in location.state
-  const isAuthenticated = location.state && location.state.user;
-  return isAuthenticated ? children : <Navigate to="/" replace />;
+  return isAuthenticated() ? children : <Navigate to="/" replace />;
 }
 
 function App() {
@@ -24,7 +25,14 @@ function App() {
               </ProtectedRoute>
             }
           /> 
-          <Route path="/calendar" element={<CalendarOnboarding />} />
+          <Route
+            path="/calendar"
+            element={
+              <ProtectedRoute>
+                <CalendarOnboarding />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
     </BrowserRouter>
   )
