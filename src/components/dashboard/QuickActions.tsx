@@ -1,19 +1,22 @@
+import { useNavigate } from 'react-router-dom';
+
 function QuickActions() {
+  const navigate = useNavigate();
 
   // Actions when clicked
   const handleAddEvent = () => {
-    // TODO: Implement add event logic
-    console.log("Add Event clicked");
+    // Navigate to calendar page for adding events
+    navigate('/calendar');
   };
 
   const handleSetReminder = () => {
-    // TODO: Implement set reminder logic
-    console.log("Set Reminder clicked");
+    // Navigate to settings page for reminder configuration
+    navigate('/settings');
   };
 
   const handleStudySession = () => {
-    // TODO: Implement study session logic
-    console.log("Study Session clicked");
+    // For now, navigate to calendar - you can create a dedicated study session page later
+    navigate('/calendar');
   };
 
   return (
