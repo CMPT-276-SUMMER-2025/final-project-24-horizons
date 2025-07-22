@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 const navLinks = [
   { name: 'Dashboard', to: '/dashboard' },
-  { name: 'Calendar', to: '/calendar-onboarding' },
+  { name: 'Calendar', to: '/calendar' },
   { name: 'Settings', to: '#' },
 ];
 
