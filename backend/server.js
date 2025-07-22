@@ -19,7 +19,7 @@ if (missingEnvVars.length > 0) {
 }
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3009;
 
 // Google OAuth2 client
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
@@ -50,7 +50,12 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
+  origin: [
+    process.env.CLIENT_URL || 'http://localhost:5173',
+    'https://studysync-backend.uttamsharma.com',
+    'https://studysync-ai.netlify.app/'
+    // Add any other domains you want to allow
+  ],
   credentials: true
 }));
 app.use(express.json());
