@@ -1,4 +1,5 @@
 import { useCalendar } from '../../services/calendarContext';
+import { CalendarFold } from 'lucide-react';
 
 function TodaysSchedule() {
   const { events } = useCalendar();
@@ -36,8 +37,10 @@ function TodaysSchedule() {
 
   return (
     <div>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '12px' }}>🗓️ Today's Schedule</div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="widget-header">
+        <CalendarFold size={25} /> Today's Schedule
+      </div>
+      <div className="widget-content" style={{ gap: '8px' }}>
         {todaysEvents.length === 0 ? (
           <div className="widget-row" style={{ color: '#999', fontStyle: 'italic' }}>
             No events scheduled for today

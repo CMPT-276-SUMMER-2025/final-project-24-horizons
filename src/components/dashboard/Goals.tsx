@@ -1,12 +1,15 @@
 import { useGoals } from '../../services/goalsContext';
+import { Goal } from 'lucide-react';
 
 function Goals() {
   const { goals } = useGoals();
 
   return (
     <>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '12px' }}>🎯 Goals</div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="widget-header">
+        <Goal size={25} /> Goals
+      </div>
+      <div className="widget-content" style={{ gap: '8px' }}>
         {goals.length === 0 ? (
           <div className="widget-row" style={{ color: '#888', fontStyle: 'italic' }}>
             No goals set yet

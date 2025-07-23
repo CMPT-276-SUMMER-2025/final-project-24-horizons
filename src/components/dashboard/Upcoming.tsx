@@ -1,4 +1,5 @@
 import { useCalendar } from '../../services/calendarContext';
+import { Clock9 } from 'lucide-react';
 
 function Upcoming() {
   const { events } = useCalendar();
@@ -17,7 +18,7 @@ function Upcoming() {
       return eventDate > todayDate; // Only events after today
     })
     .sort((a, b) => {
-      
+
       // Sort by date first, then by time
       const dateA = new Date(a.date);
       const dateB = new Date(b.date);
@@ -68,8 +69,10 @@ function Upcoming() {
 
   return (
     <>
-      <div style={{ fontWeight: 'bold', fontSize: '1.2rem', marginBottom: '12px' }}>⏳ Upcoming</div>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="widget-header">
+        <Clock9 size={25} /> Upcoming
+      </div>
+      <div className="widget-content" style={{ gap: '8px' }}>
         {upcomingEvents.length === 0 ? (
           <div className="widget-row" style={{ color: '#999', fontStyle: 'italic' }}>
             No upcoming events
