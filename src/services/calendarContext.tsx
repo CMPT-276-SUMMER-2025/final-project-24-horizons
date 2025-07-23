@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 
 // Shared interface for calendar events
@@ -19,6 +19,8 @@ interface CalendarContextType {
   addEvents: (events: CalendarEvent[]) => void; // For bulk imports
   removeEvent: (id: string) => void;
   clearEvents: () => void;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const CalendarContext = createContext<CalendarContextType | undefined>(undefined);
@@ -29,8 +31,43 @@ interface CalendarProviderProps {
 
 // Component that wraps the app and provides calendar state
 export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) => {
-  // Central state for all calendar events
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [isLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load events from localStorage on mount
+  useEffect(() => {
+    try {
+      const savedEvents = localStorage.getItem('imported_calendar_events');
+      if (savedEvents) {
+        const parsedEvents = JSON.parse(savedEvents);
+        // Convert date strings back to Date objects
+        const eventsWithDates = parsedEvents.map((event: any) => ({
+          ...event,
+          date: new Date(event.date)
+        }));
+        setEvents(eventsWithDates);
+        console.log(`📅 Loaded ${eventsWithDates.length} saved calendar events`);
+      }
+    } catch (error) {
+      console.error('Error loading saved calendar events:', error);
+      setError('Failed to load saved calendar events');
+    }
+  }, []);
+
+  // Save events to localStorage whenever events change
+  useEffect(() => {
+    // Don't save on initial load (when events is empty from initial state)
+    if (events.length === 0) return;
+    
+    try {
+      localStorage.setItem('imported_calendar_events', JSON.stringify(events));
+      console.log(`💾 Saved ${events.length} calendar events to localStorage`);
+    } catch (error) {
+      console.error('Error saving calendar events:', error);
+      setError('Failed to save calendar events');
+    }
+  }, [events]);
 
   // Add a single event to the calendar
   const addEvent = (event: CalendarEvent) => {
@@ -56,7 +93,9 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
       addEvent,
       addEvents,
       removeEvent,
-      clearEvents
+      clearEvents,
+      isLoading,
+      error
     }}>
       {children}
     </CalendarContext.Provider>
