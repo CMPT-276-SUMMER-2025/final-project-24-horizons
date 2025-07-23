@@ -5,6 +5,8 @@ import Settings from './pages/Settings';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
 import { AuthProvider, useAuth } from './services/authContext';
+import { CalendarProvider } from './services/calendarContext';
+import { GoalsProvider } from './services/goalsContext';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
@@ -53,7 +55,11 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <CalendarProvider>
+          <GoalsProvider>
+            <AppRoutes />
+          </GoalsProvider>
+        </CalendarProvider>
       </AuthProvider>
     </BrowserRouter>
   );

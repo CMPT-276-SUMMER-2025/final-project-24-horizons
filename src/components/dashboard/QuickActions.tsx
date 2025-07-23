@@ -15,7 +15,7 @@ function QuickActions() {
   };
 
   const handleStudySession = () => {
-    // For now, navigate to calendar - you can create a dedicated study session page later
+    // For now, navigate to calendar
     navigate('/calendar');
   };
 

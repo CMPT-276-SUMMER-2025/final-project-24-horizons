@@ -1,14 +1,6 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
+import type { CalendarEvent } from './calendarContext';
 
-export interface CalendarEvent {
-  id: string;
-  title: string;
-  date: Date;
-  time: string;
-  description: string;
-  location: string;
-  type: 'google' | 'canvas' | 'imported';
-}
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
 
 class CalendarService {
   async getGoogleAuthUrl(): Promise<string> {
