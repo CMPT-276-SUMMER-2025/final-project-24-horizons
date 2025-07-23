@@ -1,5 +1,5 @@
 import { NotebookPen } from "lucide-react";
-import { Plus } from "lucide-react";
+import { Folder } from "lucide-react";
 import { useState } from "react";
 
 function PersonalNotes() {
@@ -12,21 +12,20 @@ function PersonalNotes() {
 
   const handleMouseEnter = () => {
     setIsShimmering(true);
-    // Reset shimmer after animation completes
     setTimeout(() => setIsShimmering(false), 1800);
   };
 
   return (
     <>
       <div className="widget-header">
-        <NotebookPen size={25} /> Personal Notes
+        <NotebookPen size={25} /> Recent Notes
         <button 
           className="header-square-btn btn-base"
           onClick={handleAddNote}
           onMouseEnter={handleMouseEnter}
-          title="Add new note"
+          title="Note view"
         > 
-          <Plus size={20} strokeWidth={4} />
+          <Folder size={18} />
           {isShimmering && <div className="header-btn-shimmer" />}
         </button>
       </div>

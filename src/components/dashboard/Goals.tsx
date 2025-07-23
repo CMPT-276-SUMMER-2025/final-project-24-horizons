@@ -49,7 +49,7 @@ function Goals() {
         ) : (
           goals.map((goal, index) => (
             <div className="widget-row" key={index}>
-              {goal}
+              • {goal}
             </div>
           ))
         )}

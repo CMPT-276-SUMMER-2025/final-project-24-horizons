@@ -134,7 +134,7 @@
 
 .widget-row {
   padding: 8px 0;
-  border-bottom: 1px solid var(--color-bg);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-bg) 25%, transparent);
 }
 
 .widget-row:last-child {
