@@ -184,6 +184,85 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// In-memory storage for user goals (in production, use a database)
+const userGoals = new Map();
+
+// Get user's goals
+app.get('/api/user/goals', authenticateToken, (req, res) => {
+  console.log(`🎯 Goals request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const goals = userGoals.get(userId) || [];
+  res.json({ goals });
+});
+
+// Add a goal for the user
+app.post('/api/user/goals', authenticateToken, (req, res) => {
+  console.log(`➕ Add goal request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const { goal } = req.body;
+  
+  if (!goal || typeof goal !== 'string' || !goal.trim()) {
+    return res.status(400).json({ error: 'Goal is required and must be a non-empty string' });
+  }
+  
+  const trimmedGoal = goal.trim();
+  const currentGoals = userGoals.get(userId) || [];
+  
+  // Check if goal already exists
+  if (currentGoals.includes(trimmedGoal)) {
+    return res.status(400).json({ error: 'Goal already exists' });
+  }
+  
+  const updatedGoals = [...currentGoals, trimmedGoal];
+  userGoals.set(userId, updatedGoals);
+  
+  console.log(`✅ Goal added for ${req.user.email}: "${trimmedGoal}"`);
+  res.json({ goals: updatedGoals });
+});
+
+// Remove a goal for the user
+app.delete('/api/user/goals/:index', authenticateToken, (req, res) => {
+  console.log(`🗑️ Remove goal request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const goalIndex = parseInt(req.params.index);
+  
+  const currentGoals = userGoals.get(userId) || [];
+  
+  if (goalIndex < 0 || goalIndex >= currentGoals.length) {
+    return res.status(400).json({ error: 'Invalid goal index' });
+  }
+  
+  const updatedGoals = currentGoals.filter((_, index) => index !== goalIndex);
+  userGoals.set(userId, updatedGoals);
+  
+  console.log(`✅ Goal removed for ${req.user.email} at index ${goalIndex}`);
+  res.json({ goals: updatedGoals });
+});
+
+// Update all goals for the user (bulk update)
+app.put('/api/user/goals', authenticateToken, (req, res) => {
+  console.log(`📝 Update goals request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const { goals } = req.body;
+  
+  if (!Array.isArray(goals)) {
+    return res.status(400).json({ error: 'Goals must be an array' });
+  }
+  
+  // Validate each goal
+  const validGoals = goals.filter(goal => 
+    typeof goal === 'string' && goal.trim().length > 0
+  ).map(goal => goal.trim());
+  
+  // Remove duplicates
+  const uniqueGoals = [...new Set(validGoals)];
+  
+  userGoals.set(userId, uniqueGoals);
+  
+  console.log(`✅ Goals updated for ${req.user.email}: ${uniqueGoals.length} goals`);
+  res.json({ goals: uniqueGoals });
+});
+
 // Protected routes example
 app.get('/api/user/dashboard', authenticateToken, (req, res) => {
   console.log(`📊 Dashboard data request for: ${req.user.email}`);

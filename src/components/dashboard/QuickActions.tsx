@@ -29,7 +29,7 @@ function QuickActions() {
       </div>
       <div className="widget-content" style={{ gap: '35px', justifyContent: 'center' }}>
         <button 
-          className="quick-action-btn" 
+          className="quick-action-btn btn-base" 
           onClick={handleAddEvent}
           onMouseEnter={() => setHoveredButton('add-event')}
           onMouseLeave={() => setHoveredButton(null)}
@@ -42,7 +42,7 @@ function QuickActions() {
           )}
         </button>
         <button 
-          className="quick-action-btn" 
+          className="quick-action-btn btn-base" 
           onClick={handleSetReminder}
           onMouseEnter={() => setHoveredButton('set-reminder')}
           onMouseLeave={() => setHoveredButton(null)}
@@ -55,7 +55,7 @@ function QuickActions() {
           )}
         </button>
         <button 
-          className="quick-action-btn" 
+          className="quick-action-btn btn-base" 
           onClick={handleStudySession}
           onMouseEnter={() => setHoveredButton('study-session')}
           onMouseLeave={() => setHoveredButton(null)}
