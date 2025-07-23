@@ -27,10 +27,9 @@
   grid-template-columns: repeat(3, 1fr); /* Make 6 grid squares */
   grid-template-rows: repeat(2, minmax(200px, 1fr)); /* Flexible rows with minimum height */
   gap: 60px;
-  width: 100%; /* Changed from 100vw to 100% */
+  width: 100%;
   min-height: 0;
-  height: 100%;
-  padding: 5px 32px 40px;
+  padding: 5px 32px 60px; /* Increased top and bottom padding for better spacing */
   box-sizing: border-box;
   align-items: stretch; /* Make widgets stretch to fill grid cells */
 }
@@ -88,7 +87,7 @@
   .dashboard-grid {
     grid-template-columns: 1fr; /* Single column on mobile */
     grid-template-rows: auto; 
-    padding: 20px 20px 40px;
+    padding: 20px 20px 60px;
     height: auto;
   }
   
@@ -101,7 +100,7 @@
   .dashboard-grid {
     grid-template-columns: repeat(2, 1fr); /* 2 columns on tablets */
     grid-template-rows: auto;
-    padding: 20px 32px 40px;
+    padding: 20px 32px 60px;
     min-height: calc(100vh - 100px);
   }
   
