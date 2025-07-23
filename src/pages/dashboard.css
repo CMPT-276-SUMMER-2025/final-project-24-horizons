@@ -52,7 +52,8 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr); /* Make 6 grid squares */
   grid-template-rows: repeat(2, minmax(200px, 1fr));
-  gap: 60px;
+  column-gap: 30px;
+  row-gap: 60px;
   width: 100%;
   min-height: 0;
   padding: 5px 32px 60px; 

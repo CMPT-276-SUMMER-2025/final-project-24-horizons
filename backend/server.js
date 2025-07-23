@@ -187,6 +187,9 @@ app.get('/api/health', (req, res) => {
 // In-memory storage for user goals (in production, use a database)
 const userGoals = new Map();
 
+// In-memory storage for user notes (in production, use a database)
+const userNotes = new Map();
+
 // Get user's goals
 app.get('/api/user/goals', authenticateToken, (req, res) => {
   console.log(`🎯 Goals request for user: ${req.user.email}`);
@@ -261,6 +264,92 @@ app.put('/api/user/goals', authenticateToken, (req, res) => {
   
   console.log(`✅ Goals updated for ${req.user.email}: ${uniqueGoals.length} goals`);
   res.json({ goals: uniqueGoals });
+});
+
+// Notes API endpoints
+
+// Get user's notes
+app.get('/api/notes', authenticateToken, (req, res) => {
+  console.log(`📝 Notes request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const notes = userNotes.get(userId) || [];
+  res.json(notes);
+});
+
+// Create a new note
+app.post('/api/notes', authenticateToken, (req, res) => {
+  console.log(`➕ Add note request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const { title, content } = req.body;
+  
+  if (!title && !content) {
+    return res.status(400).json({ error: 'Title or content is required' });
+  }
+  
+  const currentNotes = userNotes.get(userId) || [];
+  const newNote = {
+    id: Date.now(), // In production, use a proper ID generator
+    title: title?.trim() || 'Untitled Note',
+    content: content?.trim() || '',
+    date: new Date().toLocaleDateString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const updatedNotes = [...currentNotes, newNote];
+  userNotes.set(userId, updatedNotes);
+  
+  console.log(`✅ Note created for ${req.user.email}: "${newNote.title}"`);
+  res.status(201).json(newNote);
+});
+
+// Update a note
+app.put('/api/notes/:id', authenticateToken, (req, res) => {
+  console.log(`📝 Update note request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const noteId = parseInt(req.params.id);
+  const { title, content } = req.body;
+  
+  const currentNotes = userNotes.get(userId) || [];
+  const noteIndex = currentNotes.findIndex(note => note.id === noteId);
+  
+  if (noteIndex === -1) {
+    return res.status(404).json({ error: 'Note not found' });
+  }
+  
+  const updatedNote = {
+    ...currentNotes[noteIndex],
+    title: title?.trim() || currentNotes[noteIndex].title,
+    content: content?.trim() || currentNotes[noteIndex].content,
+    updatedAt: new Date().toISOString()
+  };
+  
+  const updatedNotes = [...currentNotes];
+  updatedNotes[noteIndex] = updatedNote;
+  userNotes.set(userId, updatedNotes);
+  
+  console.log(`✅ Note updated for ${req.user.email}: "${updatedNote.title}"`);
+  res.json(updatedNote);
+});
+
+// Delete a note
+app.delete('/api/notes/:id', authenticateToken, (req, res) => {
+  console.log(`🗑️ Delete note request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const noteId = parseInt(req.params.id);
+  
+  const currentNotes = userNotes.get(userId) || [];
+  const noteExists = currentNotes.some(note => note.id === noteId);
+  
+  if (!noteExists) {
+    return res.status(404).json({ error: 'Note not found' });
+  }
+  
+  const updatedNotes = currentNotes.filter(note => note.id !== noteId);
+  userNotes.set(userId, updatedNotes);
+  
+  console.log(`✅ Note deleted for ${req.user.email}, ID: ${noteId}`);
+  res.json({ success: true, message: 'Note deleted successfully' });
 });
 
 // Protected routes example

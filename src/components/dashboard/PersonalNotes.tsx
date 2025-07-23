@@ -1,19 +1,49 @@
 import { NotebookPen } from "lucide-react";
 import { Folder } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { fetchNotes, type Note } from "../../services/notesApi";
 
 function PersonalNotes() {
   const [isShimmering, setIsShimmering] = useState(false);
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  // Fetch notes on component mount
+  useEffect(() => {
+    const loadNotes = async () => {
+      try {
+        const fetchedNotes = await fetchNotes();
+        // Sort by most recent first (by createdAt)
+        const sortedNotes = fetchedNotes.sort((a, b) => 
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+        setNotes(sortedNotes);
+      } catch (error) {
+        console.error('Failed to fetch notes:', error);
+        // Set empty array on error so component still renders
+        setNotes([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotes();
+  }, []);
 
   const handleAddNote = () => {
-    // Onclick logic
-    console.log("Add note button clicked");
+    // Navigate to Study Dashboard Notes tab
+    navigate('/study');
   };
 
   const handleMouseEnter = () => {
     setIsShimmering(true);
     setTimeout(() => setIsShimmering(false), 1800);
   };
+
+  // Get the 5 most recent notes
+  const recentNotes = notes.slice(0, 5);
 
   return (
     <>
@@ -30,9 +60,17 @@ function PersonalNotes() {
         </button>
       </div>
       <div className="widget-content" style={{ gap: '8px' }}>
-        <div className="widget-row">This is a note ...</div>
-        <div className="widget-row">This is another note ...</div>
-        <div className="widget-row">Wow! A third note?! ...</div>
+        {loading ? (
+          <div className="widget-row">Loading notes...</div>
+        ) : recentNotes.length > 0 ? (
+          recentNotes.map((note) => (
+            <div key={note.id} className="widget-row" title={note.content}>
+              {note.title || 'Untitled Note'}
+            </div>
+          ))
+        ) : (
+          <div className="widget-row">No notes yet. Create your first note!</div>
+        )}
       </div>
     </>
   );
