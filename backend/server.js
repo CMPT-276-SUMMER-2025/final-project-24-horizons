@@ -190,6 +190,9 @@ const userGoals = new Map();
 // In-memory storage for user notes (in production, use a database)
 const userNotes = new Map();
 
+// In-memory storage for user flashcards (in production, use a database)
+const userFlashcards = new Map();
+
 // Get user's goals
 app.get('/api/user/goals', authenticateToken, (req, res) => {
   console.log(`🎯 Goals request for user: ${req.user.email}`);
@@ -350,6 +353,92 @@ app.delete('/api/notes/:id', authenticateToken, (req, res) => {
   
   console.log(`✅ Note deleted for ${req.user.email}, ID: ${noteId}`);
   res.json({ success: true, message: 'Note deleted successfully' });
+});
+
+// Flashcards API endpoints
+
+// Get user's flashcards
+app.get('/api/flashcards', authenticateToken, (req, res) => {
+  console.log(`🃏 Flashcards request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const flashcards = userFlashcards.get(userId) || [];
+  res.json(flashcards);
+});
+
+// Create a new flashcard
+app.post('/api/flashcards', authenticateToken, (req, res) => {
+  console.log(`➕ Add flashcard request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const { front, back } = req.body;
+  
+  if (!front && !back) {
+    return res.status(400).json({ error: 'Front or back is required' });
+  }
+  
+  const currentFlashcards = userFlashcards.get(userId) || [];
+  const newFlashcard = {
+    id: Date.now(), // In production, use a proper ID generator
+    front: front?.trim() || 'Untitled Front',
+    back: back?.trim() || '',
+    date: new Date().toLocaleDateString(),
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  
+  const updatedFlashcards = [...currentFlashcards, newFlashcard];
+  userFlashcards.set(userId, updatedFlashcards);
+  
+  console.log(`✅ Flashcard created for ${req.user.email}: "${newFlashcard.front}"`);
+  res.status(201).json(newFlashcard);
+});
+
+// Update a flashcard
+app.put('/api/flashcards/:id', authenticateToken, (req, res) => {
+  console.log(`📝 Update flashcard request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const flashcardId = parseInt(req.params.id);
+  const { front, back } = req.body;
+  
+  const currentFlashcards = userFlashcards.get(userId) || [];
+  const flashcardIndex = currentFlashcards.findIndex(flashcard => flashcard.id === flashcardId);
+  
+  if (flashcardIndex === -1) {
+    return res.status(404).json({ error: 'Flashcard not found' });
+  }
+  
+  const updatedFlashcard = {
+    ...currentFlashcards[flashcardIndex],
+    front: front?.trim() || currentFlashcards[flashcardIndex].front,
+    back: back?.trim() || currentFlashcards[flashcardIndex].back,
+    updatedAt: new Date().toISOString()
+  };
+  
+  const updatedFlashcards = [...currentFlashcards];
+  updatedFlashcards[flashcardIndex] = updatedFlashcard;
+  userFlashcards.set(userId, updatedFlashcards);
+  
+  console.log(`✅ Flashcard updated for ${req.user.email}: "${updatedFlashcard.front}"`);
+  res.json(updatedFlashcard);
+});
+
+// Delete a flashcard
+app.delete('/api/flashcards/:id', authenticateToken, (req, res) => {
+  console.log(`🗑️ Delete flashcard request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const flashcardId = parseInt(req.params.id);
+  
+  const currentFlashcards = userFlashcards.get(userId) || [];
+  const flashcardExists = currentFlashcards.some(flashcard => flashcard.id === flashcardId);
+  
+  if (!flashcardExists) {
+    return res.status(404).json({ error: 'Flashcard not found' });
+  }
+  
+  const updatedFlashcards = currentFlashcards.filter(flashcard => flashcard.id !== flashcardId);
+  userFlashcards.set(userId, updatedFlashcards);
+  
+  console.log(`✅ Flashcard deleted for ${req.user.email}, ID: ${flashcardId}`);
+  res.json({ success: true, message: 'Flashcard deleted successfully' });
 });
 
 // Protected routes example

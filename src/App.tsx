@@ -9,6 +9,7 @@ import { AuthProvider, useAuth } from './services/authContext';
 import { CalendarProvider } from './services/calendarContext';
 import { GoalsProvider } from './services/goalsContext';
 import { NotesProvider } from './services/notesContext';
+import { FlashcardsProvider } from './services/flashcardsContext';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
@@ -68,7 +69,9 @@ function App() {
         <CalendarProvider>
           <GoalsProvider>
             <NotesProvider>
-              <AppRoutes />
+              <FlashcardsProvider>
+                <AppRoutes />
+              </FlashcardsProvider>
             </NotesProvider>
           </GoalsProvider>
         </CalendarProvider>
