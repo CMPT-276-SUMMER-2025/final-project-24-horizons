@@ -5,14 +5,19 @@ import UserSettings from '../components/settings/UserSettings';
 import ReminderCard from '../components/settings/ReminderCard';
 import Navbar from '../components/NavBar';
 import { useAuth } from '../services/authContext';
+import { useTimer } from '../services/TimerContext';
+
 
 function Settings() {
-  const [showReminder, setShowReminder] = useState(true);
+  const [reminderDismissed, setReminderDismissed] = useState(false);
+  const { isRunning } = useTimer();
+
   const { logout } = useAuth();
 
   const handleStart = () => {
-    setShowReminder(false); // Hides the ReminderCard
+    setReminderDismissed(true);
   };
+
 
   const handleLogout = async () => {
     try {
@@ -33,7 +38,8 @@ function Settings() {
         <div className="settings-grid">
           <NotificationsSettings />
           <UserSettings />
-          {showReminder && <ReminderCard onStart={handleStart} />}
+          {!isRunning && !reminderDismissed && <ReminderCard onStart={handleStart} />}
+
         </div>
 
         <div className="logout-wrapper">
