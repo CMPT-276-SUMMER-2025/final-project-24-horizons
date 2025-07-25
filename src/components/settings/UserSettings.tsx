@@ -1,7 +1,17 @@
 import { useAuth } from '../../services/authContext';
+import { useEffect, useState } from 'react';
 
 function UserSettings() {
   const { user } = useAuth();
+
+  // ✅ Theme state for dropdown
+  const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+
+  // ✅ Apply the theme to the app when changed
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   return (
     <section className="settings-section">
@@ -41,11 +51,13 @@ function UserSettings() {
             <option>GMT</option>
           </select>
         </div>
+
+        {/* ✅ This is the working theme toggle */}
         <div className="setting-item">
           <label>Theme</label>
-          <select>
-            <option>Light</option>
-            <option>Dark</option>
+          <select value={theme} onChange={(e) => setTheme(e.target.value)}>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
           </select>
         </div>
       </div>
