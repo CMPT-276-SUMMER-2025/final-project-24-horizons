@@ -4,12 +4,15 @@ import Navbar from '../components/NavBar';
 import { BookOpen, StickyNote, Search } from 'lucide-react';
 import { useNotes } from '../services/notesContext';
 import { useFlashcards } from '../services/flashcardsContext';
+import { useSearchParams } from 'react-router-dom';
 
 // Tab types
 type TabType = 'flashcards' | 'notes';
 
 const StudyDashboard: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<TabType>('notes');
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get('tab') === 'flashcards' ? 'flashcards' : 'notes';
+  const [activeTab, setActiveTab] = useState<TabType>(initialTab);
 
   return (
     <>
@@ -150,22 +153,18 @@ const FlashCardsTab: React.FC = () => {
           {filteredFlashcards.map((flashcard) => (
             <div 
               key={flashcard.id} 
-              className="note-box"
+              className="note-box flashcard-box"
               onClick={() => handleEditFlashcard(flashcard)}
             >
-              <div className="note-box-header">
-                <h4 className="note-box-title">{flashcard.front}</h4>
-                <button 
-                  className="note-box-delete"
-                  onClick={(e) => { e.stopPropagation(); handleDeleteFlashcard(flashcard.id, e); }}
-                >
-                  ×
-                </button>
+              <div className="flashcard-title-centered">
+                {flashcard.front}
               </div>
-              <div className="note-box-content">
-                {flashcard.back}
-              </div>
-              <div className="note-box-date">{flashcard.date}</div>
+              <button 
+                className="note-box-delete"
+                onClick={(e) => { e.stopPropagation(); handleDeleteFlashcard(flashcard.id, e); }}
+              >
+                ×
+              </button>
             </div>
           ))}
         </div>
@@ -175,7 +174,7 @@ const FlashCardsTab: React.FC = () => {
       {showCreateModal && (
         <div className={`note-creation-modal ${isClosing ? 'closing' : ''}`}>
           <div className="note-creation-form">
-            <h3>{editingFlashcard ? 'Edit Flashcard' : 'Create New Flashcard'}</h3>
+            <h3>{editingFlashcard ? 'Flashcard' : 'Create New Flashcard'}</h3>
             <input
               type="text"
               value={newFlashcardFront}
@@ -195,7 +194,7 @@ const FlashCardsTab: React.FC = () => {
                 Cancel
               </button>
               <button onClick={handleAddFlashcard} className="note-form-btn note-form-save" disabled={isLoading}>
-                {isLoading ? 'Saving...' : (editingFlashcard ? 'Update Flashcard' : 'Save Flashcard')}
+                {(editingFlashcard ? 'Done' : 'Save')}
               </button>
             </div>
           </div>
@@ -320,19 +319,17 @@ const NotesTab: React.FC = () => {
               className="note-box"
               onClick={() => handleEditNote(note)}
             >
-              <div className="note-box-header">
-                <h4 className="note-box-title">{note.title}</h4>
-                <button 
-                  className="note-box-delete"
-                  onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id, e); }}
-                >
-                  ×
-                </button>
-              </div>
+              <h4 className="note-box-title">{note.title}</h4>
               <div className="note-box-content">
                 {note.content}
               </div>
               <div className="note-box-date">{note.date}</div>
+              <button 
+                className="note-box-delete"
+                onClick={(e) => { e.stopPropagation(); handleDeleteNote(note.id, e); }}
+              >
+                ×
+              </button>
             </div>
           ))}
         </div>
@@ -362,7 +359,7 @@ const NotesTab: React.FC = () => {
                 Cancel
               </button>
               <button onClick={handleAddNote} className="note-form-btn note-form-save" disabled={isLoading}>
-                {isLoading ? 'Saving...' : (editingNote ? 'Update Note' : 'Save Note')}
+                {(editingNote ? 'Done' : 'Save')}
               </button>
             </div>
           </div>

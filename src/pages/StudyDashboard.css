@@ -338,7 +338,7 @@
   overflow: hidden;
   box-shadow: 0 0 5px 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
   position: relative;
-  animation: noteSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: noteSlideIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 /* Note deletion animation */
@@ -350,7 +350,7 @@
 @keyframes noteSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.9);
+    transform: translateY(120px) scale(0.3);
   }
   to {
     opacity: 1;
@@ -452,11 +452,11 @@
   background: #ff4756cd;
   color: white;
   border: none;
-  border-radius: 12px;
-  width: 24px;
-  height: 24px;
+  border-radius: 10px;
+  width: 20px;
+  height: 20px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
   display: flex;
   align-items: center;
@@ -465,11 +465,14 @@
   flex-shrink: 0;
   opacity: 0;
   visibility: hidden;
+  position: absolute;
+  top: 8px;
+  right: 8px;
 }
 
 .note-box-delete:hover {
   background: #ff3742;
-  transform: scale(1.2);
+  transform: scale(1.15);
 }
 
 .note-box-content {
@@ -616,7 +619,7 @@
 .note-form-buttons {
   display: flex;
   gap: 12px;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .note-form-btn {
@@ -684,4 +687,41 @@
     width: 95%;
     margin: 0 10px;
   }
+}
+
+/* Flashcard specific styles */
+.flashcard-box {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: all 0.3s ease;
+}
+
+.flashcard-box .note-box-delete {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.flashcard-title-centered {
+  color: var(--color-accent);
+  font-weight: bold;
+  font-size: 1.2rem;
+  text-align: center;
+  line-height: 1.4;
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+  hyphens: auto;
+  transition: color 0.3s ease;
+}
+
+.flashcard-box:hover .flashcard-title-centered {
+  color: var(--color-primary);
 }

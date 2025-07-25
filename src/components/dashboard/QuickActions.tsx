@@ -8,18 +8,15 @@ function QuickActions() {
 
   // Actions when clicked
   const handleAddEvent = () => {
-    // Navigate to calendar page for adding events
     navigate('/calendar');
   };
 
   const handleSetReminder = () => {
-    // Navigate to settings page for reminder configuration
     navigate('/settings');
   };
 
   const handleStudySession = () => {
-    // For now, navigate to calendar
-    navigate('/calendar');
+    navigate('/study?tab=flashcards');
   };
 
   return (
@@ -61,7 +58,7 @@ function QuickActions() {
           onMouseLeave={() => setHoveredButton(null)}
         >
           <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-            <BookOpenText size={20} /> Study Session
+            <BookOpenText size={20} /> View Flash Cards
           </span>
           {hoveredButton === 'study-session' && (
             <div className="quick-action-btn-shimmer" />
