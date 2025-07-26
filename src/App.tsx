@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
 import { AuthProvider, useAuth } from './services/authContext';
 import { LoadingScreen } from './components/LoadingScreen';
+import CalendarAI from './pages/CalendarAI';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
   const { user, loading } = useAuth();
@@ -34,6 +35,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CalendarOnboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar-ai"
+        element={
+          <ProtectedRoute>
+            <CalendarAI />
           </ProtectedRoute>
         }
       />

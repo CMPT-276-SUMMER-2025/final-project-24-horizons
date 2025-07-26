@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './CalendarOnboarding.css';
 import Navbar from '../components/NavBar';
+import { useNavigate } from 'react-router-dom';
 
 declare global {
   interface Window {
@@ -20,6 +21,7 @@ interface ImportedEvent {
 }
 
 const CalendarOnboarding: React.FC = () => {
+  const navigate = useNavigate();
   const [goals, setGoals] = useState<string[]>(['Gym', 'Job/ Project']);
   const [newGoal, setNewGoal] = useState<string>('');
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
@@ -567,6 +569,7 @@ const CalendarOnboarding: React.FC = () => {
 
             <div className="calendar-onboarding-done-btn-group">
               <button
+                onClick={() => navigate('/calendar-ai')}
                 className={
                   "calendar-onboarding-btn calendar-onboarding-btn--done" +
                   (hoveredButton === 'done' ? " calendar-onboarding-btn--hover-done" : "")
