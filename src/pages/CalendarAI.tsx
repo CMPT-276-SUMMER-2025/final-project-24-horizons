@@ -6,7 +6,7 @@ import Navbar from '../components/NavBar'
 const initialEvents = [
   {
     id: '1',
-    title: 'Chemistry Exam',
+    title: 'Exam',
     date: new Date(2025, 6, 26), // July 26, 2025
     time: '10:00',
     description: 'Final chemistry exam',
@@ -16,7 +16,7 @@ const initialEvents = [
   },
   {
     id: '2',
-    title: 'Math Lecture',
+    title: 'Lecture',
     date: new Date(2025, 6, 24),
     time: '14:00',
     description: 'Calculus II',
@@ -26,7 +26,7 @@ const initialEvents = [
   },
   {
     id: '3',
-    title: 'Team Meeting',
+    title: 'Meeting',
     date: new Date(2025, 6, 25),
     time: '09:00',
     description: 'Weekly team sync',
@@ -38,26 +38,56 @@ const initialEvents = [
 
 const CalendarAI = () => {
   const [events] = useState(initialEvents);
-  const [selectedDate] = useState(new Date());
+//   const [selectedDate] = useState(new Date());
   const [aiInput, setAiInput] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<'week' | 'month'>('month');
   const [chatMessages, setChatMessages] = useState([
     {
       id: 1,
       type: 'ai',
-      content: "Can you check what times I'm free this week?"
+      content: "blahh?"
     },
     {
       id: 2, 
       type: 'ai',
-      content: "War, war never changes. In the year 1945, my great-great grandfather, serving in the army, wondered when he'd get to go home to his wife and the son he never see. He got his wish, when the U.S. ended WWII by dropping atomic bombs on Hiroshima and Nagasaki. The world awaited Armageddon; instead, something miraculous happened."
+      content: "blah blah"
     },
     {
       id: 3,
       type: 'ai', 
-      content: "You're free on thursday at 5pm."
+      content: "blah"
     }
   ]);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
+
+  const navigatePrevious = () => {
+  const newDate = new Date(selectedDate);
+  if (viewMode === 'month') {
+    newDate.setMonth(newDate.getMonth() - 1);
+  } else {
+    newDate.setDate(newDate.getDate() - 7); // Previous week
+  }
+  setSelectedDate(newDate);
+  };
+
+  const navigateNext = () => {
+  const newDate = new Date(selectedDate);
+  if (viewMode === 'month') {
+    newDate.setMonth(newDate.getMonth() + 1);
+  } else {
+    newDate.setDate(newDate.getDate() + 7); // Next week
+  }
+  setSelectedDate(newDate);
+  };
+  
+
+  const formatCurrentPeriod = () => {
+  const monthNames = ["January", "February", "March", "April", "May", "June", 
+                     "July", "August", "September", "October", "November", "December"];
+  return `${monthNames[selectedDate.getMonth()]} ${selectedDate.getFullYear()}`;
+  };
+
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -153,17 +183,24 @@ const CalendarAI = () => {
         {/* Calendar Section */}
         <div className={`calendar-ai-calendar-section ${isPanelOpen ? 'calendar-ai-calendar-section--with-panel' : ''}`}>
           <div className="calendar-ai-calendar-controls">
-            <div className="calendar-ai-calendar-nav">
-              <button className="calendar-ai-nav-btn">Prev</button>
-              <span className="calendar-ai-current-month">June 2025</span>
-              <button className="calendar-ai-nav-btn">Next</button>
-              <button className="calendar-ai-nav-btn calendar-ai-today-btn">Today</button>
-            </div>
-            <div className="calendar-ai-view-controls">
-              <button className="calendar-ai-view-btn calendar-ai-view-btn--active">Week</button>
-              <button className="calendar-ai-view-btn">Month</button>
-            </div>
-          </div>
+  <div className="calendar-ai-calendar-nav">
+    <button 
+      className="calendar-ai-nav-btn" 
+      onClick={navigatePrevious}
+    >
+      Prev
+    </button>
+    <span className="calendar-ai-current-month">
+      {formatCurrentPeriod()}
+    </span>
+    <button 
+      className="calendar-ai-nav-btn" 
+      onClick={navigateNext}
+    >
+      Next
+    </button>
+  </div>
+</div>
 
           <div className="calendar-ai-calendar-container">
             <div className="calendar-ai-calendar-grid">
