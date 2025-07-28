@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3009/api'; // Same as notes API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
 
 export interface Flashcard {
   id: number;
@@ -16,7 +16,7 @@ interface ErrorResponse {
 // Get user's flashcards from the backend
 export const fetchFlashcards = async (): Promise<Flashcard[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/flashcards`, {
+    const response = await fetch(`${API_BASE_URL}/api/flashcards`, {
       method: 'GET',
       credentials: 'include', // Include cookies for authentication
       headers: {
@@ -39,7 +39,7 @@ export const fetchFlashcards = async (): Promise<Flashcard[]> => {
 // Add a new flashcard to the backend
 export const addFlashcardToServer = async (front: string, back: string): Promise<Flashcard> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/flashcards`, {
+    const response = await fetch(`${API_BASE_URL}/api/flashcards`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -64,7 +64,7 @@ export const addFlashcardToServer = async (front: string, back: string): Promise
 // Delete a flashcard from the backend
 export const removeFlashcardFromServer = async (id: number): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/flashcards/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/flashcards/${id}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -85,7 +85,7 @@ export const removeFlashcardFromServer = async (id: number): Promise<void> => {
 // Update a flashcard on the backend
 export const updateFlashcardOnServer = async (id: number, front: string, back: string): Promise<Flashcard> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/flashcards/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/flashcards/${id}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {

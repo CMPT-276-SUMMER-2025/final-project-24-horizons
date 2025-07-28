@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3009/api'; // Same as goals API
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
 
 export interface Note {
   id: number;
@@ -16,7 +16,7 @@ interface ErrorResponse {
 // Get user's notes from the backend
 export const fetchNotes = async (): Promise<Note[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/notes`, {
+    const response = await fetch(`${API_BASE_URL}/api/notes`, {
       method: 'GET',
       credentials: 'include', // Include cookies for authentication
       headers: {
@@ -39,7 +39,7 @@ export const fetchNotes = async (): Promise<Note[]> => {
 // Add a new note to the backend
 export const addNoteToServer = async (title: string, content: string): Promise<Note> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/notes`, {
+    const response = await fetch(`${API_BASE_URL}/api/notes`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -64,7 +64,7 @@ export const addNoteToServer = async (title: string, content: string): Promise<N
 // Remove a note from the backend by ID
 export const removeNoteFromServer = async (id: number): Promise<void> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -85,7 +85,7 @@ export const removeNoteFromServer = async (id: number): Promise<void> => {
 // Update a note on the backend
 export const updateNoteOnServer = async (id: number, title: string, content: string): Promise<Note> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/api/notes/${id}`, {
       method: 'PUT',
       credentials: 'include',
       headers: {

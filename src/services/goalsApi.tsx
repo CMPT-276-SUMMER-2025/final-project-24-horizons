@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:3009/api'; // Change back to uttam's server
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
 
 interface GoalsResponse {
   goals: string[];
@@ -11,7 +11,7 @@ interface ErrorResponse {
 // Get user's goals from the backend
 export const fetchGoals = async (): Promise<string[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user/goals`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/goals`, {
       method: 'GET',
       credentials: 'include', // Include cookies for authentication
       headers: {
@@ -34,7 +34,7 @@ export const fetchGoals = async (): Promise<string[]> => {
 // Add a new goal to the backend
 export const addGoalToServer = async (goal: string): Promise<string[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user/goals`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/goals`, {
       method: 'POST',
       credentials: 'include',
       headers: {
@@ -59,7 +59,7 @@ export const addGoalToServer = async (goal: string): Promise<string[]> => {
 // Remove a goal from the backend by index
 export const removeGoalFromServer = async (index: number): Promise<string[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user/goals/${index}`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/goals/${index}`, {
       method: 'DELETE',
       credentials: 'include',
       headers: {
@@ -83,7 +83,7 @@ export const removeGoalFromServer = async (index: number): Promise<string[]> => 
 // Update all goals on the backend (bulk update)
 export const updateGoalsOnServer = async (goals: string[]): Promise<string[]> => {
   try {
-    const response = await fetch(`${API_BASE_URL}/user/goals`, {
+    const response = await fetch(`${API_BASE_URL}/api/user/goals`, {
       method: 'PUT',
       credentials: 'include',
       headers: {

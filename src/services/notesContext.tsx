@@ -131,7 +131,7 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     if (!authLoading) { // Wait for auth to finish loading
       refreshNotes();
     }
-  }, [user, authLoading, refreshNotes]);
+  }, [user, authLoading]);
 
   const value: NotesContextType = {
     notes,

@@ -1,5 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3009';
-// Change back to Uttam's server
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://studysync-backend.uttamsharma.com';
 
 export interface User {
   id: string;
