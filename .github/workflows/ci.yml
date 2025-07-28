@@ -31,7 +31,7 @@ jobs:
       run: npm run lint
     
     - name: Run tests
-      run: npm test -- --passWithNoTests
+      run: npm run test:health && npm run test:comprehensive && npm run test:nav
     
     - name: Build application
       run: npm run build
