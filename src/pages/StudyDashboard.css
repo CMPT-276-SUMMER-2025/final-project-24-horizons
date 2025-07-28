@@ -695,7 +695,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transform: all 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .flashcard-box .note-box-delete {
