@@ -2,9 +2,14 @@ import React, { useEffect } from 'react';
 import { LandingPage } from './LandingPage';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
+import StudyDashboard from './pages/StudyDashboard';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
 import { AuthProvider, useAuth } from './services/authContext';
+import { CalendarProvider } from './services/calendarContext';
+import { GoalsProvider } from './services/goalsContext';
+import { NotesProvider } from './services/notesContext';
+import { FlashcardsProvider } from './services/flashcardsContext';
 import { LoadingScreen } from './components/LoadingScreen';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
@@ -45,6 +50,14 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/study"
+        element={
+          <ProtectedRoute>
+            <StudyDashboard />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 }
@@ -60,7 +73,15 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRoutes />
+        <CalendarProvider>
+          <GoalsProvider>
+            <NotesProvider>
+              <FlashcardsProvider>
+                <AppRoutes />
+              </FlashcardsProvider>
+            </NotesProvider>
+          </GoalsProvider>
+        </CalendarProvider>
       </AuthProvider>
     </BrowserRouter>
   );

@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import './CalendarOnboarding.css';
 import Navbar from '../components/NavBar';
+import { useCalendar } from '../services/calendarContext';
+import { useGoals } from '../services/goalsContext';
+import type { CalendarEvent } from '../services/calendarContext';
+import { GraduationCap, CalendarPlus, MailPlus, Check } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -9,28 +13,25 @@ declare global {
   }
 }
 
-interface ImportedEvent {
-  id: string;
-  title: string;
-  date: Date;
-  time: string;
-  description: string;
-  location: string;
-  type: string;
-}
-
 const CalendarOnboarding: React.FC = () => {
-  const [goals, setGoals] = useState<string[]>(['Gym', 'Job/ Project']);
+  // Use shared calendar context instead of local state for events
+  const { events: importedEvents, addEvents } = useCalendar();
+  // Use shared goals context instead of local state for goals
+  const { goals, addGoal: addGoalToContext } = useGoals();
   const [newGoal, setNewGoal] = useState<string>('');
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const [importedEvents, setImportedEvents] = useState<ImportedEvent[]>([]);
 
-  // Add goal handler to use setGoals
-  const addGoal = () => {
+  // Add goal handler using context
+  const addGoal = async () => {
     const trimmedGoal = newGoal.trim();
-    if (trimmedGoal && !goals.includes(trimmedGoal)) {
-      setGoals([...goals, trimmedGoal]);
-      setNewGoal('');
+    if (trimmedGoal) {
+      try {
+        await addGoalToContext(trimmedGoal);
+        setNewGoal('');
+      } catch (error) {
+        // Error is already handled by the context
+        console.error('Failed to add goal:', error);
+      }
     }
   };
   const [selectedDate] = useState<Date>(new Date());
@@ -55,7 +56,8 @@ const CalendarOnboarding: React.FC = () => {
   }, []);
 
   const parseICSFile = (content: string) => {
-    const events: ImportedEvent[] = [];
+    // Parse ICS file content and return CalendarEvent objects for context
+    const events: CalendarEvent[] = [];
     const lines = content.split(/\r?\n/).map(line => line.trim());
     let currentEvent: { [key: string]: string } = {};
     let inEvent = false;
@@ -73,7 +75,7 @@ const CalendarOnboarding: React.FC = () => {
             time: currentEvent.dtstart ? parseICSTime(currentEvent.dtstart) : 'All Day',
             description: currentEvent.description || '',
             location: currentEvent.location || '',
-            type: 'imported'
+            type: 'imported' as const
           });
         }
         inEvent = false;
@@ -138,8 +140,9 @@ const CalendarOnboarding: React.FC = () => {
       }
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
       const events = parseICSFile(content);
-      const eventsWithType = events.map(event => ({ ...event, type: 'canvas' }));
-      setImportedEvents(prev => [...prev, ...eventsWithType]);
+      const eventsWithType = events.map(event => ({ ...event, type: 'canvas' as const }));
+      // Add events to shared context instead of local state
+      addEvents(eventsWithType);
       alert(`Successfully imported ${events.length} events from Canvas!`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -167,8 +170,9 @@ const CalendarOnboarding: React.FC = () => {
       }
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
       const events = parseICSFile(content);
-      const eventsWithType = events.map(event => ({ ...event, type: 'imported' }));
-      setImportedEvents(prev => [...prev, ...eventsWithType]);
+      const eventsWithType = events.map(event => ({ ...event, type: 'imported' as const }));
+      // Add events to shared context instead of local state
+      addEvents(eventsWithType);
       alert(`Successfully imported ${events.length} events from calendar!`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -252,9 +256,10 @@ const CalendarOnboarding: React.FC = () => {
           'All Day',
         description: event.description || '',
         location: event.location || '',
-        type: 'google'
+        type: 'google' as const
       })) || [];
-      setImportedEvents(prev => [...prev, ...events]);
+      // Add Google Calendar events to shared context
+      addEvents(events);
     } catch (error: unknown) {
       let errorMessage = 'Unknown error occurred';
       if (error instanceof Error) errorMessage = error.message;
@@ -398,7 +403,7 @@ const CalendarOnboarding: React.FC = () => {
                       Importing...
                     </>
                   ) : (
-                    <>📚 Import Canvas from URL</>
+                    <><GraduationCap size={25} /> Import Canvas from URL</>
                   )}
                 </span>
                 {hoveredButton === 'canvas' && !isImporting && (
@@ -433,7 +438,7 @@ const CalendarOnboarding: React.FC = () => {
                       ) : (
                         <>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            🗓️ Google Calendar {isGoogleConfigured() ? '' : '⚙️'}
+                            <CalendarPlus size={25} /> Google Calendar {isGoogleConfigured() ? '' : '⚙️'}
                           </div>
                           {!isGoogleConfigured() && (
                             <div style={{ fontSize: '0.8em', opacity: 0.9 }}>
@@ -473,7 +478,7 @@ const CalendarOnboarding: React.FC = () => {
                         Importing...
                       </>
                     ) : (
-                      <> 📧 Import Outlook Calendar from URL </>
+                      <> <MailPlus size={25} /> Import Outlook Calendar from URL </>
                     )}
                   </span>
                   {hoveredButton === 'ics' && !isImporting && (
@@ -575,7 +580,7 @@ const CalendarOnboarding: React.FC = () => {
                 onMouseLeave={() => setHoveredButton(null)}
               >
                 <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  ✨ Done
+                  <Check size={23} strokeWidth={3} /> Done
                 </span>
                 {hoveredButton === 'done' && (
                   <div className="calendar-onboarding-btn-shimmer" />

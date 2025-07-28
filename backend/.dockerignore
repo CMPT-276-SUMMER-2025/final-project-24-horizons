@@ -8,3 +8,16 @@ Dockerfile
 .dockerignore
 coverage
 .nyc_output
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+
+# SQLite temporary files
+*.db-journal
+*.db-wal
+*.db-shm
