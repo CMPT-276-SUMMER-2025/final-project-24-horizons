@@ -209,6 +209,10 @@
   background-color: #9b59b6;
 }
 
+.calendar-ai-event--ai-generated {
+  background-color: #27ae60;
+}
+
 .calendar-ai-more-events {
   font-size: 0.7rem;
   color: #5bb69e;
@@ -402,6 +406,71 @@
 .calendar-ai-floating-toggle-text {
   font-size: 0.7rem;
   font-weight: 500;
+}
+
+.calendar-ai-conflict-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.calendar-ai-conflict-content {
+  background: #3b4a61;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 2px solid #5bb69e;
+  color: white;
+  max-width: 400px;
+  width: 90%;
+}
+
+.calendar-ai-conflict-content h3 {
+  margin: 0 0 1rem 0;
+  color: #5bb69e;
+}
+
+.calendar-ai-conflict-content ul {
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.calendar-ai-conflict-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.calendar-ai-conflict-buttons button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.calendar-ai-btn-confirm {
+  background: #e74c3c;
+  color: white;
+}
+
+.calendar-ai-btn-reschedule {
+  background: #5bb69e;
+  color: white;
+}
+
+.calendar-ai-btn-cancel {
+  background: #7f8c8d;
+  color: white;
 }
 
 /* Responsive Design */
