@@ -43,11 +43,12 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
     try {
       const serverFlashcards = await fetchFlashcards();
       setFlashcards(serverFlashcards);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load flashcards:', err);
       
       // Check if it's an authentication error
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         setError('Authentication failed. Please log in again.');
       } else {
         setError('Failed to load flashcards. Please try again.');
@@ -69,10 +70,11 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
     try {
       const newFlashcard = await addFlashcardToServer(front, back);
       setFlashcards(prevFlashcards => [newFlashcard, ...prevFlashcards]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to add flashcard:', err);
       
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         setError('Authentication failed. Please log in again.');
       } else {
         setError('Failed to create flashcard. Please try again.');
@@ -94,10 +96,11 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
     try {
       await removeFlashcardFromServer(id);
       setFlashcards(prevFlashcards => prevFlashcards.filter(flashcard => flashcard.id !== id));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to delete flashcard:', err);
       
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         setError('Authentication failed. Please log in again.');
       } else {
         setError('Failed to delete flashcard. Please try again.');
@@ -122,10 +125,11 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
           flashcard.id === id ? updatedFlashcard : flashcard
         )
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update flashcard:', err);
       
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         setError('Authentication failed. Please log in again.');
       } else {
         setError('Failed to update flashcard. Please try again.');
@@ -145,7 +149,7 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
       setFlashcards([]);
       setError(null);
     }
-  }, [user, authLoading]);
+  }, [user, authLoading]); // lint disable
 
   const value: FlashcardsContextType = {
     flashcards,

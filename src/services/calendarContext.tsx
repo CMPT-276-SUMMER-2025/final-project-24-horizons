@@ -42,7 +42,7 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
       if (savedEvents) {
         const parsedEvents = JSON.parse(savedEvents);
         // Convert date strings back to Date objects
-        const eventsWithDates = parsedEvents.map((event: any) => ({
+        const eventsWithDates = parsedEvents.map((event: CalendarEvent) => ({
           ...event,
           date: new Date(event.date)
         }));

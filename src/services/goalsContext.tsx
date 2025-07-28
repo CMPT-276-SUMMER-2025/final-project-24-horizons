@@ -42,16 +42,17 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const serverGoals = await fetchGoals();
       setGoals(serverGoals);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load goals:', err);
       
       // Check if it's an authentication error
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         console.log('User not authenticated, using empty goals');
         setGoals([]);
         setError('Not logged in');
       } else {
-        setError(err.message || 'Failed to load goals');
+        setError(errorMessage || 'Failed to load goals');
         // Keep existing goals on non-auth errors
       }
     } finally {
@@ -64,7 +65,7 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     if (!authLoading) {
       refreshGoals();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading]); // lint disable
 
   // Add a single goal to the list
   const addGoal = async (goal: string) => {
@@ -83,9 +84,10 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await addGoalToServer(trimmedGoal);
       setGoals(updatedGoals);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to add goal:', err);
-      setError(err.message || 'Failed to add goal');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add goal';
+      setError(errorMessage);
       throw err; // Re-throw so component can handle it
     } finally {
       setIsLoading(false);
@@ -107,9 +109,10 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await removeGoalFromServer(index);
       setGoals(updatedGoals);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to remove goal:', err);
-      setError(err.message || 'Failed to remove goal');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to remove goal';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -126,9 +129,10 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await updateGoalsOnServer([]);
       setGoals(updatedGoals);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to clear goals:', err);
-      setError(err.message || 'Failed to clear goals');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to clear goals';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }

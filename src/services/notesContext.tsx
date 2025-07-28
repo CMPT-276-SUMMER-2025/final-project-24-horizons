@@ -43,16 +43,17 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     try {
       const serverNotes = await fetchNotes();
       setNotes(serverNotes);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to load notes:', err);
       
       // Check if it's an authentication error
-      if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
         console.log('User not authenticated, using empty notes');
         setNotes([]);
         setError('Not logged in');
       } else {
-        setError(err.message || 'Failed to load notes');
+        setError(errorMessage || 'Failed to load notes');
         // Keep existing notes on non-auth errors
       }
     } finally {
@@ -72,9 +73,10 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     try {
       const newNote = await addNoteToServer(title, content);
       setNotes(prevNotes => [...prevNotes, newNote]);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to add note:', err);
-      setError(err.message || 'Failed to add note');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to add note';
+      setError(errorMessage);
       throw err; // Re-throw so component can handle it
     } finally {
       setIsLoading(false);
@@ -93,9 +95,10 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     try {
       await removeNoteFromServer(id);
       setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to remove note:', err);
-      setError(err.message || 'Failed to remove note');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to remove note';
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -117,9 +120,10 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
           note.id === id ? updatedNote : note
         )
       );
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Failed to update note:', err);
-      setError(err.message || 'Failed to update note');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to update note';
+      setError(errorMessage);
       throw err; // Re-throw so component can handle it
     } finally {
       setIsLoading(false);
@@ -131,7 +135,7 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     if (!authLoading) { // Wait for auth to finish loading
       refreshNotes();
     }
-  }, [user, authLoading]);
+  }, [user, authLoading]); // lint disable
 
   const value: NotesContextType = {
     notes,
