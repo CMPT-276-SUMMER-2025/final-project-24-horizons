@@ -335,7 +335,7 @@ const NotesTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Create/edt note form */}
+      {/* Create/edit note form */}
       {showCreateModal && (
         <div className={`note-creation-modal ${isClosing ? 'closing' : ''}`}>
           <div className="note-creation-form">
