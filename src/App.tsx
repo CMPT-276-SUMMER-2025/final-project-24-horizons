@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { LandingPage } from './LandingPage';
 import Dashboard from './pages/Dashboard';
 import Settings from './pages/Settings';
@@ -62,7 +62,14 @@ function AppRoutes() {
   );
 }
 
+
 function App() {
+  // Apply saved theme when the app loads
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }, []);
+
   return (
     <BrowserRouter>
       <AuthProvider>

@@ -21,6 +21,7 @@
 .settings-title {
   font-size: 32px;
   margin-bottom: 24px;
+  color: var(--color-text);
 }
 
 .settings-grid {
@@ -52,7 +53,7 @@
   flex-direction: column;
   min-height: 0; /* Allow grid items to shrink below content size */
   height: 100%;
-  color: var(--color-bg);
+  color: var(--color-text);
   padding: 20px;
   transition: transform 0.45s cubic-bezier(0.23, 1, 0.32, 1);
   animation: floatIn 0.45s cubic-bezier(0.23, 1, 0.32, 1);
@@ -60,7 +61,7 @@
 }
 
 .setting-item input::placeholder {
-  color: var(--color-text);
+  color: var(--color-bg);
   opacity: 1;
 }
 
@@ -93,7 +94,7 @@
   border: none;
   border-radius: 6px;
   background: var(--color-bg);       
-  color: var(--color-text);            
+  color: #2D3748;    /* colour for text in white box  (hard coded)*/    
 }
 
 .setting-item input[readonly] {
@@ -109,6 +110,7 @@
 .reminder-title {
   font-size: 20px;
   font-weight: bold;
+  color: var(--color-text);
 }
 
 .reminder-buttons {
@@ -160,7 +162,7 @@
 }
 
 .snooze-button {
-  background-color: #A78BFA; /* soft purple */
+  background-color: var(--color-primary); /* soft purple */
   color: white;
   font-weight: bold;
   padding: 10px 20px;

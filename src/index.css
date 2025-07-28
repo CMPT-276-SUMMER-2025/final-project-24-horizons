@@ -4,10 +4,19 @@
   --color-dark: #2D3748;        /* Dark Gray */
   --color-gray: #3a475d;      /* Lighter Gray */
   --color-bg: #FAF9F6;          /* Off-white */
-  --color-text: #2D3748;        /* Dark text */
+  --color-text: #FAF9F6;       /* Off-white text */
+  --color-textbox: #4a5668;
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   background-color: var(--color-bg);
   color: var(--color-text);
+}
+
+[data-theme='light'] {
+  --color-bg: #FAF9F6;
+  --color-text: #2D3748; /* Dark text */
+  --color-dark: #edf2f7;
+  --color-gray: #dfe3e8;
+  --color-textbox: #CAD4E0;
 }
 
 a {
