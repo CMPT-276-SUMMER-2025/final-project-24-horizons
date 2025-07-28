@@ -4,6 +4,7 @@ import Navbar from '../components/NavBar';
 import { useCalendar } from '../services/calendarContext';
 import { useGoals } from '../services/goalsContext';
 import type { CalendarEvent } from '../services/calendarContext';
+import { GraduationCap, CalendarPlus, MailPlus, Check } from 'lucide-react';
 
 declare global {
   interface Window {
@@ -402,7 +403,7 @@ const CalendarOnboarding: React.FC = () => {
                       Importing...
                     </>
                   ) : (
-                    <>📚 Import Canvas from URL</>
+                    <><GraduationCap size={25} /> Import Canvas from URL</>
                   )}
                 </span>
                 {hoveredButton === 'canvas' && !isImporting && (
@@ -437,7 +438,7 @@ const CalendarOnboarding: React.FC = () => {
                       ) : (
                         <>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            🗓️ Google Calendar {isGoogleConfigured() ? '' : '⚙️'}
+                            <CalendarPlus size={25} /> Google Calendar {isGoogleConfigured() ? '' : '⚙️'}
                           </div>
                           {!isGoogleConfigured() && (
                             <div style={{ fontSize: '0.8em', opacity: 0.9 }}>
@@ -477,7 +478,7 @@ const CalendarOnboarding: React.FC = () => {
                         Importing...
                       </>
                     ) : (
-                      <> 📧 Import Outlook Calendar from URL </>
+                      <> <MailPlus size={25} /> Import Outlook Calendar from URL </>
                     )}
                   </span>
                   {hoveredButton === 'ics' && !isImporting && (
@@ -579,7 +580,7 @@ const CalendarOnboarding: React.FC = () => {
                 onMouseLeave={() => setHoveredButton(null)}
               >
                 <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  ✨ Done
+                  <Check size={23} strokeWidth={3} /> Done
                 </span>
                 {hoveredButton === 'done' && (
                   <div className="calendar-onboarding-btn-shimmer" />
