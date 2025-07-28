@@ -213,7 +213,7 @@ const NotesTab: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [editingNote, setEditingNote] = useState<{ id: number; title: string; content: string } | null>(null);
 
-  // Use notes context (like goals)
+  // Use notes context
   const { notes, addNote, removeNote, updateNote, isLoading } = useNotes();
 
   const handleAddNote = async () => {
@@ -274,7 +274,7 @@ const NotesTab: React.FC = () => {
     closeModal();
   };
 
-  // Filter notes based on search query
+  // Filter notes based on search
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     note.content.toLowerCase().includes(searchQuery.toLowerCase())
@@ -299,7 +299,7 @@ const NotesTab: React.FC = () => {
       {/* Notes grid container */}
       <div className="notes-grid-container">
         <div className="notes-grid">
-          {/* Add new note button (top-left) */}
+          {/* Add new note button */}
           <div 
             className="note-box add-note-box"
             onClick={() => setShowCreateModal(true)}

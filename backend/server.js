@@ -6,6 +6,7 @@ import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
 import helmet from 'helmet';
 import crypto from 'crypto';
+import dbManager from './database/database.js';
 
 dotenv.config();
 
@@ -99,6 +100,15 @@ app.post('/api/auth/google', async (req, res) => {
       picture: payload.picture,
     };
     
+    // Save/update user in database
+    try {
+      await dbManager.upsertUser(user);
+      console.log(`💾 User saved to database: ${user.email}`);
+    } catch (dbError) {
+      console.error('❌ Failed to save user to database:', dbError);
+      return res.status(500).json({ error: 'Database error during authentication' });
+    }
+    
     // Create JWT token
     const jwtToken = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
     
@@ -184,25 +194,25 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// In-memory storage for user goals (in production, use a database)
-const userGoals = new Map();
-
-// In-memory storage for user notes (in production, use a database)
-const userNotes = new Map();
-
-// In-memory storage for user flashcards (in production, use a database)
-const userFlashcards = new Map();
+// Initialize database
+await dbManager.initialize();
 
 // Get user's goals
-app.get('/api/user/goals', authenticateToken, (req, res) => {
+app.get('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`🎯 Goals request for user: ${req.user.email}`);
   const userId = req.user.id;
-  const goals = userGoals.get(userId) || [];
-  res.json({ goals });
+  
+  try {
+    const goals = await dbManager.getUserGoals(userId);
+    res.json({ goals });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch goals' });
+  }
 });
 
 // Add a goal for the user
-app.post('/api/user/goals', authenticateToken, (req, res) => {
+app.post('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`➕ Add goal request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { goal } = req.body;
@@ -212,41 +222,49 @@ app.post('/api/user/goals', authenticateToken, (req, res) => {
   }
   
   const trimmedGoal = goal.trim();
-  const currentGoals = userGoals.get(userId) || [];
   
-  // Check if goal already exists
-  if (currentGoals.includes(trimmedGoal)) {
-    return res.status(400).json({ error: 'Goal already exists' });
+  try {
+    // Check if goal already exists
+    const currentGoals = await dbManager.getUserGoals(userId);
+    if (currentGoals.includes(trimmedGoal)) {
+      return res.status(400).json({ error: 'Goal already exists' });
+    }
+    
+    await dbManager.createGoal(userId, trimmedGoal);
+    const updatedGoals = await dbManager.getUserGoals(userId);
+    
+    console.log(`✅ Goal added for ${req.user.email}: "${trimmedGoal}"`);
+    res.json({ goals: updatedGoals });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to add goal' });
   }
-  
-  const updatedGoals = [...currentGoals, trimmedGoal];
-  userGoals.set(userId, updatedGoals);
-  
-  console.log(`✅ Goal added for ${req.user.email}: "${trimmedGoal}"`);
-  res.json({ goals: updatedGoals });
 });
 
 // Remove a goal for the user
-app.delete('/api/user/goals/:index', authenticateToken, (req, res) => {
+app.delete('/api/user/goals/:index', authenticateToken, async (req, res) => {
   console.log(`🗑️ Remove goal request for user: ${req.user.email}`);
   const userId = req.user.id;
   const goalIndex = parseInt(req.params.index);
   
-  const currentGoals = userGoals.get(userId) || [];
-  
-  if (goalIndex < 0 || goalIndex >= currentGoals.length) {
-    return res.status(400).json({ error: 'Invalid goal index' });
+  try {
+    await dbManager.deleteGoal(userId, goalIndex);
+    const updatedGoals = await dbManager.getUserGoals(userId);
+    
+    console.log(`✅ Goal removed for ${req.user.email} at index ${goalIndex}`);
+    res.json({ goals: updatedGoals });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    if (error.message === 'Invalid goal index') {
+      res.status(400).json({ error: 'Invalid goal index' });
+    } else {
+      res.status(500).json({ error: 'Failed to remove goal' });
+    }
   }
-  
-  const updatedGoals = currentGoals.filter((_, index) => index !== goalIndex);
-  userGoals.set(userId, updatedGoals);
-  
-  console.log(`✅ Goal removed for ${req.user.email} at index ${goalIndex}`);
-  res.json({ goals: updatedGoals });
 });
 
 // Update all goals for the user (bulk update)
-app.put('/api/user/goals', authenticateToken, (req, res) => {
+app.put('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`📝 Update goals request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { goals } = req.body;
@@ -263,24 +281,35 @@ app.put('/api/user/goals', authenticateToken, (req, res) => {
   // Remove duplicates
   const uniqueGoals = [...new Set(validGoals)];
   
-  userGoals.set(userId, uniqueGoals);
-  
-  console.log(`✅ Goals updated for ${req.user.email}: ${uniqueGoals.length} goals`);
-  res.json({ goals: uniqueGoals });
+  try {
+    await dbManager.updateUserGoals(userId, uniqueGoals);
+    
+    console.log(`✅ Goals updated for ${req.user.email}: ${uniqueGoals.length} goals`);
+    res.json({ goals: uniqueGoals });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to update goals' });
+  }
 });
 
 // Notes API endpoints
 
 // Get user's notes
-app.get('/api/notes', authenticateToken, (req, res) => {
+app.get('/api/notes', authenticateToken, async (req, res) => {
   console.log(`📝 Notes request for user: ${req.user.email}`);
   const userId = req.user.id;
-  const notes = userNotes.get(userId) || [];
-  res.json(notes);
+  
+  try {
+    const notes = await dbManager.getUserNotes(userId);
+    res.json(notes);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch notes' });
+  }
 });
 
 // Create a new note
-app.post('/api/notes', authenticateToken, (req, res) => {
+app.post('/api/notes', authenticateToken, async (req, res) => {
   console.log(`➕ Add note request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { title, content } = req.body;
@@ -289,84 +318,107 @@ app.post('/api/notes', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Title or content is required' });
   }
   
-  const currentNotes = userNotes.get(userId) || [];
-  const newNote = {
-    id: Date.now(), // In production, use a proper ID generator
-    title: title?.trim() || 'Untitled Note',
-    content: content?.trim() || '',
-    date: new Date().toLocaleDateString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  
-  const updatedNotes = [...currentNotes, newNote];
-  userNotes.set(userId, updatedNotes);
-  
-  console.log(`✅ Note created for ${req.user.email}: "${newNote.title}"`);
-  res.status(201).json(newNote);
+  try {
+    const newNote = await dbManager.createNote(
+      userId, 
+      title?.trim() || 'Untitled Note', 
+      content?.trim() || ''
+    );
+    
+    console.log(`✅ Note created for ${req.user.email}: "${newNote.title}"`);
+    res.status(201).json(newNote);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to create note' });
+  }
 });
 
 // Update a note
-app.put('/api/notes/:id', authenticateToken, (req, res) => {
+app.put('/api/notes/:id', authenticateToken, async (req, res) => {
   console.log(`📝 Update note request for user: ${req.user.email}`);
   const userId = req.user.id;
   const noteId = parseInt(req.params.id);
   const { title, content } = req.body;
   
-  const currentNotes = userNotes.get(userId) || [];
-  const noteIndex = currentNotes.findIndex(note => note.id === noteId);
-  
-  if (noteIndex === -1) {
-    return res.status(404).json({ error: 'Note not found' });
+  try {
+    const updatedNote = await dbManager.updateNote(
+      noteId, 
+      userId, 
+      title?.trim() || 'Untitled Note', 
+      content?.trim() || ''
+    );
+    
+    if (!updatedNote) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+    
+    console.log(`✅ Note updated for ${req.user.email}: "${updatedNote.title}"`);
+    res.json(updatedNote);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to update note' });
   }
-  
-  const updatedNote = {
-    ...currentNotes[noteIndex],
-    title: title?.trim() || currentNotes[noteIndex].title,
-    content: content?.trim() || currentNotes[noteIndex].content,
-    updatedAt: new Date().toISOString()
-  };
-  
-  const updatedNotes = [...currentNotes];
-  updatedNotes[noteIndex] = updatedNote;
-  userNotes.set(userId, updatedNotes);
-  
-  console.log(`✅ Note updated for ${req.user.email}: "${updatedNote.title}"`);
-  res.json(updatedNote);
 });
 
 // Delete a note
-app.delete('/api/notes/:id', authenticateToken, (req, res) => {
+app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
   console.log(`🗑️ Delete note request for user: ${req.user.email}`);
   const userId = req.user.id;
   const noteId = parseInt(req.params.id);
   
-  const currentNotes = userNotes.get(userId) || [];
-  const noteExists = currentNotes.some(note => note.id === noteId);
+  try {
+    const result = await dbManager.deleteNote(noteId, userId);
+    
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Note not found' });
+    }
+    
+    console.log(`✅ Note deleted for ${req.user.email}, ID: ${noteId}`);
+    res.json({ success: true, message: 'Note deleted successfully' });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to delete note' });
+  }
+});
+
+// Search notes endpoint
+app.get('/api/notes/search', authenticateToken, async (req, res) => {
+  console.log(`🔍 Search notes request for user: ${req.user.email}`);
+  const userId = req.user.id;
+  const { q: searchTerm } = req.query;
   
-  if (!noteExists) {
-    return res.status(404).json({ error: 'Note not found' });
+  if (!searchTerm || typeof searchTerm !== 'string' || !searchTerm.trim()) {
+    return res.status(400).json({ error: 'Search term is required' });
   }
   
-  const updatedNotes = currentNotes.filter(note => note.id !== noteId);
-  userNotes.set(userId, updatedNotes);
-  
-  console.log(`✅ Note deleted for ${req.user.email}, ID: ${noteId}`);
-  res.json({ success: true, message: 'Note deleted successfully' });
+  try {
+    const notes = await dbManager.searchNotes(userId, searchTerm.trim());
+    console.log(`✅ Found ${notes.length} notes for search term: "${searchTerm}"`);
+    res.json(notes);
+  } catch (error) {
+    console.error('❌ Search error:', error);
+    res.status(500).json({ error: 'Failed to search notes' });
+  }
 });
 
 // Flashcards API endpoints
 
 // Get user's flashcards
-app.get('/api/flashcards', authenticateToken, (req, res) => {
+app.get('/api/flashcards', authenticateToken, async (req, res) => {
   console.log(`🃏 Flashcards request for user: ${req.user.email}`);
   const userId = req.user.id;
-  const flashcards = userFlashcards.get(userId) || [];
-  res.json(flashcards);
+  
+  try {
+    const flashcards = await dbManager.getUserFlashcards(userId);
+    res.json(flashcards);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to fetch flashcards' });
+  }
 });
 
 // Create a new flashcard
-app.post('/api/flashcards', authenticateToken, (req, res) => {
+app.post('/api/flashcards', authenticateToken, async (req, res) => {
   console.log(`➕ Add flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { front, back } = req.body;
@@ -375,73 +427,70 @@ app.post('/api/flashcards', authenticateToken, (req, res) => {
     return res.status(400).json({ error: 'Front or back is required' });
   }
   
-  const currentFlashcards = userFlashcards.get(userId) || [];
-  const newFlashcard = {
-    id: Date.now(), // In production, use a proper ID generator
-    front: front?.trim() || 'Untitled Front',
-    back: back?.trim() || '',
-    date: new Date().toLocaleDateString(),
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  };
-  
-  const updatedFlashcards = [...currentFlashcards, newFlashcard];
-  userFlashcards.set(userId, updatedFlashcards);
-  
-  console.log(`✅ Flashcard created for ${req.user.email}: "${newFlashcard.front}"`);
-  res.status(201).json(newFlashcard);
+  try {
+    const newFlashcard = await dbManager.createFlashcard(
+      userId,
+      front?.trim() || 'Untitled Front',
+      back?.trim() || ''
+    );
+    
+    console.log(`✅ Flashcard created for ${req.user.email}: "${newFlashcard.front}"`);
+    res.status(201).json(newFlashcard);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to create flashcard' });
+  }
 });
 
 // Update a flashcard
-app.put('/api/flashcards/:id', authenticateToken, (req, res) => {
+app.put('/api/flashcards/:id', authenticateToken, async (req, res) => {
   console.log(`📝 Update flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
   const flashcardId = parseInt(req.params.id);
   const { front, back } = req.body;
   
-  const currentFlashcards = userFlashcards.get(userId) || [];
-  const flashcardIndex = currentFlashcards.findIndex(flashcard => flashcard.id === flashcardId);
-  
-  if (flashcardIndex === -1) {
-    return res.status(404).json({ error: 'Flashcard not found' });
+  try {
+    const updatedFlashcard = await dbManager.updateFlashcard(
+      flashcardId,
+      userId,
+      front?.trim() || 'Untitled Front',
+      back?.trim() || ''
+    );
+    
+    if (!updatedFlashcard) {
+      return res.status(404).json({ error: 'Flashcard not found' });
+    }
+    
+    console.log(`✅ Flashcard updated for ${req.user.email}: "${updatedFlashcard.front}"`);
+    res.json(updatedFlashcard);
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to update flashcard' });
   }
-  
-  const updatedFlashcard = {
-    ...currentFlashcards[flashcardIndex],
-    front: front?.trim() || currentFlashcards[flashcardIndex].front,
-    back: back?.trim() || currentFlashcards[flashcardIndex].back,
-    updatedAt: new Date().toISOString()
-  };
-  
-  const updatedFlashcards = [...currentFlashcards];
-  updatedFlashcards[flashcardIndex] = updatedFlashcard;
-  userFlashcards.set(userId, updatedFlashcards);
-  
-  console.log(`✅ Flashcard updated for ${req.user.email}: "${updatedFlashcard.front}"`);
-  res.json(updatedFlashcard);
 });
 
 // Delete a flashcard
-app.delete('/api/flashcards/:id', authenticateToken, (req, res) => {
+app.delete('/api/flashcards/:id', authenticateToken, async (req, res) => {
   console.log(`🗑️ Delete flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
   const flashcardId = parseInt(req.params.id);
   
-  const currentFlashcards = userFlashcards.get(userId) || [];
-  const flashcardExists = currentFlashcards.some(flashcard => flashcard.id === flashcardId);
-  
-  if (!flashcardExists) {
-    return res.status(404).json({ error: 'Flashcard not found' });
+  try {
+    const result = await dbManager.deleteFlashcard(flashcardId, userId);
+    
+    if (result.changes === 0) {
+      return res.status(404).json({ error: 'Flashcard not found' });
+    }
+    
+    console.log(`✅ Flashcard deleted for ${req.user.email}, ID: ${flashcardId}`);
+    res.json({ success: true, message: 'Flashcard deleted successfully' });
+  } catch (error) {
+    console.error('❌ Database error:', error);
+    res.status(500).json({ error: 'Failed to delete flashcard' });
   }
-  
-  const updatedFlashcards = currentFlashcards.filter(flashcard => flashcard.id !== flashcardId);
-  userFlashcards.set(userId, updatedFlashcards);
-  
-  console.log(`✅ Flashcard deleted for ${req.user.email}, ID: ${flashcardId}`);
-  res.json({ success: true, message: 'Flashcard deleted successfully' });
 });
 
-// Protected routes example
+// Protected routes
 app.get('/api/user/dashboard', authenticateToken, (req, res) => {
   console.log(`📊 Dashboard data request for: ${req.user.email}`);
   res.json({ message: 'Dashboard data', user: req.user });
@@ -453,9 +502,23 @@ app.use((error, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 CORS enabled for: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
   console.log(`🔒 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📝 Request logging enabled`);
+  console.log(`💾 Database path: ${process.env.DATABASE_PATH || './database/studysync.db'}`);
+});
+
+// Graceful shutdown
+process.on('SIGINT', () => {
+  console.log('🛑 Received SIGINT. Shutting down gracefully...');
+  dbManager.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('🛑 Received SIGTERM. Shutting down gracefully...');
+  dbManager.close();
+  process.exit(0);
 });

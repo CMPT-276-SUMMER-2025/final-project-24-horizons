@@ -4,7 +4,7 @@ import { fetchFlashcards, addFlashcardToServer, removeFlashcardFromServer, updat
 import type { Flashcard } from './flashcardsApi';
 import { useAuth } from './authContext';
 
-// Context interface defining what functions and data are available to components
+// Context interface
 interface FlashcardsContextType {
   flashcards: Flashcard[];
   addFlashcard: (front: string, back: string) => Promise<void>;
@@ -21,7 +21,7 @@ interface FlashcardsProviderProps {
   children: ReactNode;
 }
 
-// Component that wraps the app and provides flashcards state
+// Wrapper component
 export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children }) => {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([]);
   const [isLoading, setIsLoading] = useState(false);

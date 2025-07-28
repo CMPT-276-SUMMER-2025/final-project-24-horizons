@@ -4,7 +4,7 @@ import { fetchNotes, addNoteToServer, removeNoteFromServer, updateNoteOnServer }
 import type { Note } from './notesApi';
 import { useAuth } from './authContext';
 
-// Context interface defining what functions and data are available to components
+// Context interface
 interface NotesContextType {
   notes: Note[];
   addNote: (title: string, content: string) => Promise<void>;
@@ -21,7 +21,7 @@ interface NotesProviderProps {
   children: ReactNode;
 }
 
-// Component that wraps the app and provides notes state
+// Wrapper component
 export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
   const [notes, setNotes] = useState<Note[]>([]);
   const [isLoading, setIsLoading] = useState(false);

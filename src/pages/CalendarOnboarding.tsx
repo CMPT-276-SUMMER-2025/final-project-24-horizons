@@ -21,11 +21,16 @@ const CalendarOnboarding: React.FC = () => {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
   // Add goal handler using context
-  const addGoal = () => {
+  const addGoal = async () => {
     const trimmedGoal = newGoal.trim();
     if (trimmedGoal) {
-      addGoalToContext(trimmedGoal);
-      setNewGoal('');
+      try {
+        await addGoalToContext(trimmedGoal);
+        setNewGoal('');
+      } catch (error) {
+        // Error is already handled by the context
+        console.error('Failed to add goal:', error);
+      }
     }
   };
   const [selectedDate] = useState<Date>(new Date());

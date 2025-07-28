@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import { fetchGoals, addGoalToServer, removeGoalFromServer, updateGoalsOnServer } from './goalsApi';
 import { useAuth } from './authContext';
 
-// Context interface defining what functions and data are available to components
+// Context interface
 interface GoalsContextType {
   goals: string[];
   addGoal: (goal: string) => Promise<void>;
@@ -20,7 +20,7 @@ interface GoalsProviderProps {
   children: ReactNode;
 }
 
-// Component that wraps the app and provides goals state
+// Wrapper component
 export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
   const [goals, setGoals] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,8 +32,8 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
   // Load goals from the backend
   const refreshGoals = async () => {
     if (!user) {
-      setGoals(['Gym', 'Job/ Project']); // Set default goals for unauthenticated users
-      setError('Not logged in - using default goals');
+      setGoals([]); // Empty goals for unauthenticated users
+      setError('Not logged in');
       return;
     }
 
@@ -47,13 +47,12 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
       
       // Check if it's an authentication error
       if (err.message.includes('401') || err.message.includes('No token') || err.message.includes('Invalid token')) {
-        console.log('User not authenticated, using default goals');
-        setError('Not logged in - using default goals');
-        setGoals(['Gym', 'Job/ Project']);
+        console.log('User not authenticated, using empty goals');
+        setGoals([]);
+        setError('Not logged in');
       } else {
-        setError('Failed to load goals from server');
-        // Fall back to default goals if server fails
-        setGoals(['Gym', 'Job/ Project']);
+        setError(err.message || 'Failed to load goals');
+        // Keep existing goals on non-auth errors
       }
     } finally {
       setIsLoading(false);
@@ -67,16 +66,15 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     }
   }, [user, authLoading]);
 
-  // Add a single goal to the list (and sync with backend)
+  // Add a single goal to the list
   const addGoal = async (goal: string) => {
     const trimmedGoal = goal.trim();
     if (!trimmedGoal || goals.includes(trimmedGoal)) {
       return;
     }
 
-    // If user is not authenticated, only update locally
     if (!user) {
-      setGoals(prev => [...prev, trimmedGoal]);
+      setError('Please log in to save goals');
       return;
     }
 
@@ -85,11 +83,10 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await addGoalToServer(trimmedGoal);
       setGoals(updatedGoals);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to add goal:', err);
-      setError('Failed to add goal to server');
-      // Update UI even if server fails
-      setGoals(prev => [...prev, trimmedGoal]);
+      setError(err.message || 'Failed to add goal');
+      throw err; // Re-throw so component can handle it
     } finally {
       setIsLoading(false);
     }
@@ -101,7 +98,7 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     }
 
     if (!user) {
-      setGoals(prev => prev.filter((_, i) => i !== index));
+      setError('Please log in to delete goals');
       return;
     }
 
@@ -110,10 +107,9 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await removeGoalFromServer(index);
       setGoals(updatedGoals);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to remove goal:', err);
-      setError('Failed to remove goal from server');
-      setGoals(prev => prev.filter((_, i) => i !== index));
+      setError(err.message || 'Failed to remove goal');
     } finally {
       setIsLoading(false);
     }
@@ -121,7 +117,7 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
 
   const clearGoals = async () => {
     if (!user) {
-      setGoals([]);
+      setError('Please log in to clear goals');
       return;
     }
 
@@ -130,10 +126,9 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     try {
       const updatedGoals = await updateGoalsOnServer([]);
       setGoals(updatedGoals);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to clear goals:', err);
-      setError('Failed to clear goals on server');
-      setGoals([]);
+      setError(err.message || 'Failed to clear goals');
     } finally {
       setIsLoading(false);
     }
