@@ -30,7 +30,7 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
 
   // Load goals from the backend
-  const refreshGoals = async () => {
+  const refreshGoals = React.useCallback(async () => {
     if (!user) {
       setGoals([]); // Empty goals for unauthenticated users
       setError('Not logged in');
@@ -58,14 +58,14 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   // Load goals when authentication is complete and user is available
   useEffect(() => {
     if (!authLoading) {
       refreshGoals();
     }
-  }, [user, authLoading]); // lint disable
+  }, [user, authLoading, refreshGoals]);
 
   // Add a single goal to the list
   const addGoal = async (goal: string) => {

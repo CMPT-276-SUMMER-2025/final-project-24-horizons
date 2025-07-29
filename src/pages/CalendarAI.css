@@ -1,0 +1,522 @@
+/* Interface for gemini overlay */
+
+.calendar-ai-root {
+  background-color: #2c3e50;
+  min-height: 100vh;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+/* Main Container */
+.calendar-ai-container {
+  display: flex;
+  height: 100vh;
+  position: relative;
+}
+
+/* Calendar Section */
+.calendar-ai-calendar-section {
+  flex: 1;
+  background-color: #3b4a61;
+  transition: all 0.3s ease;
+  padding: 2rem;
+  border-radius: 16px;
+  margin: 2rem;
+  margin-right: 1rem;
+  box-shadow: 0 4px 20px rgba(91, 182, 158, 0.3);
+  border: 1px solid #5bb69e;
+}
+
+.calendar-ai-calendar-section--with-panel {
+  margin-right: 420px;
+}
+
+.calendar-ai-calendar-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.calendar-ai-calendar-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.calendar-ai-current-month {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin: 0 1rem;
+}
+
+.calendar-ai-today-btn {
+  background-color: #5bb69e !important;
+  color: white !important;
+}
+
+.calendar-ai-today-btn:hover {
+  background-color: #4a9a82 !important;
+}
+
+.calendar-ai-nav-btn {
+  padding: 0.5rem 1rem;
+  border: 2px solid #5bb69e;
+  background: transparent;
+  color: #5bb69e;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.calendar-ai-nav-btn:hover {
+  background-color: #5bb69e;
+  color: white;
+}
+
+.calendar-ai-view-controls {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.calendar-ai-view-btn {
+  padding: 0.5rem 1rem;
+  border: 1px solid #5bb69e;
+  background: transparent;
+  color: #5bb69e;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.calendar-ai-view-btn:hover {
+  background-color: #5bb69e;
+  color: white;
+}
+
+.calendar-ai-view-btn--active {
+  background-color: #5bb69e;
+  color: white;
+}
+
+/* Calendar Grid */
+.calendar-ai-calendar-container {
+  background-color: #1a1a1a;
+  border-radius: 20px;
+  border: 4px solid #5bb69e;
+  overflow: hidden;
+}
+
+.calendar-ai-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: auto auto repeat(6, 1fr);
+  height: 600px;
+}
+
+.calendar-ai-month-header {
+  grid-column: 1 / -1;
+  background-color: #5bb69e;
+  color: white;
+  text-align: center;
+  padding: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.calendar-ai-day-label {
+  background-color: #3b4a61;
+  color: #e0e0e0;
+  text-align: center;
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.calendar-ai-empty-day {
+  background-color: #2d2d2d;
+  border: 1px solid #333;
+}
+
+.calendar-ai-day {
+  background-color: #2d2d2d;
+  border: 1px solid #333;
+  padding: 0.5rem;
+  position: relative;
+  min-height: 80px;
+  transition: all 0.2s ease;
+}
+
+.calendar-ai-day:hover {
+  background-color: #3a3a3a;
+}
+
+.calendar-ai-day--today {
+  background-color: #2d4a3d;
+  border-color: #5bb69e;
+  box-shadow: inset 0 0 0 2px #5bb69e;
+}
+
+.calendar-ai-day--has-events {
+  border-color: #5bb69e;
+}
+
+.calendar-ai-day-number {
+  font-weight: 600;
+  color: #a0a0a0;
+  margin-bottom: 0.25rem;
+  font-size: 0.9rem;
+}
+
+.calendar-ai-day--today .calendar-ai-day-number {
+  color: #5bb69e;
+  font-weight: 700;
+}
+
+/* Events */
+.calendar-ai-event {
+  font-size: 0.7rem;
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  border-radius: 3px;
+  color: white;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.calendar-ai-event:hover {
+  transform: scale(1.02);
+}
+
+.calendar-ai-event--canvas {
+  background-color: #ff6b6b;
+}
+
+.calendar-ai-event--google {
+  background-color: #4285f4;
+}
+
+.calendar-ai-event--imported {
+  background-color: #9b59b6;
+}
+
+.calendar-ai-event--ai-generated {
+  background-color: #27ae60;
+}
+
+.calendar-ai-more-events {
+  font-size: 0.7rem;
+  color: #5bb69e;
+  text-align: center;
+  margin-top: 2px;
+  font-weight: 500;
+}
+
+/* Chat Panel */
+.calendar-ai-chat-panel {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 400px;
+  height: 100vh;
+  background-color: #3b4a61;
+  border-left: 2px solid #5bb69e;
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+}
+
+.calendar-ai-chat-panel--closed {
+  transform: translateX(100%);
+}
+
+.calendar-ai-chat-panel--open {
+  transform: translateX(0);
+}
+
+.calendar-ai-chat-header {
+  background-color: #2c3e50;
+  color: white;
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #5bb69e;
+}
+
+.calendar-ai-chat-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  color: #ffffff;
+}
+
+.calendar-ai-panel-toggle {
+  background: none;
+  border: 2px solid #5bb69e;
+  color: #5bb69e;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.calendar-ai-panel-toggle:hover {
+  background-color: #5bb69e;
+  color: white;
+}
+
+/* Chat Messages */
+.calendar-ai-chat-messages {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.calendar-ai-message {
+  padding: 1rem;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.calendar-ai-message--ai {
+  background-color: #4a5668;
+  color: #ffffff;
+  border: 1px solid #5bb69e;
+}
+
+.calendar-ai-message--user {
+  background-color: #5bb69e;
+  color: white;
+  align-self: flex-end;
+  max-width: 80%;
+}
+
+/* Chat Input */
+.calendar-ai-chat-input-container {
+  padding: 1.5rem;
+  background-color: #2c3e50;
+  border-top: 1px solid #5bb69e;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.calendar-ai-chat-input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  background-color: #4a5668;
+  color: #ffffff;
+  border: 2px solid #5bb69e;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.calendar-ai-chat-input::placeholder {
+  color: #a0a0a0;
+}
+
+.calendar-ai-chat-input:focus {
+  border-color: #5bb69e;
+  box-shadow: 0 0 0 3px rgba(91, 182, 158, 0.1);
+}
+
+.calendar-ai-send-btn {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #5bb69e 0%, #4a9a82 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.calendar-ai-send-btn:hover {
+  background: linear-gradient(135deg, #4a9a82 0%, #3d8169 100%);
+  transform: translateY(-2px);
+}
+
+.calendar-ai-send-btn:active {
+  transform: translateY(0);
+}
+
+/* Floating Gemini Toggle Button */
+.calendar-ai-floating-toggle {
+  position: fixed;
+  right: 2rem;
+  bottom: 2rem;
+  width: 70px;
+  height: 70px;
+  background: linear-gradient(135deg, #5bb69e 0%, #4a9a82 100%);
+  border: 2px solid #5bb69e;
+  border-radius: 50%;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(91, 182, 158, 0.4);
+  z-index: 999;
+}
+
+.calendar-ai-floating-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 25px rgba(91, 182, 158, 0.6);
+  background: linear-gradient(135deg, #4a9a82 0%, #3d8169 100%);
+}
+
+.calendar-ai-floating-toggle-icon {
+  font-size: 1.2rem;
+  margin-bottom: 2px;
+}
+
+.calendar-ai-floating-toggle-text {
+  font-size: 0.7rem;
+  font-weight: 500;
+}
+
+.calendar-ai-conflict-dialog {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+
+.calendar-ai-conflict-content {
+  background: #3b4a61;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 2px solid #5bb69e;
+  color: white;
+  max-width: 400px;
+  width: 90%;
+}
+
+.calendar-ai-conflict-content h3 {
+  margin: 0 0 1rem 0;
+  color: #5bb69e;
+}
+
+.calendar-ai-conflict-content ul {
+  margin: 1rem 0;
+  padding-left: 1rem;
+}
+
+.calendar-ai-conflict-buttons {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.calendar-ai-conflict-buttons button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  min-width: 100px;
+}
+
+.calendar-ai-btn-confirm {
+  background: #e74c3c;
+  color: white;
+}
+
+.calendar-ai-btn-reschedule {
+  background: #5bb69e;
+  color: white;
+}
+
+.calendar-ai-btn-cancel {
+  background: #7f8c8d;
+  color: white;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .calendar-ai-chat-panel {
+    width: 350px;
+  }
+  
+  .calendar-ai-calendar-section--with-panel {
+    margin-right: 350px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-ai-chat-panel {
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+  }
+  
+  .calendar-ai-calendar-section--with-panel {
+    margin-right: 0;
+  }
+  
+  .calendar-ai-calendar-section {
+    padding: 1rem;
+  }
+  
+  .calendar-ai-nav {
+    padding: 0.5rem 1rem;
+  }
+  
+  .calendar-ai-nav-left {
+    gap: 0.5rem;
+  }
+  
+  .calendar-ai-nav-btn {
+    padding: 0.5rem 1rem;
+    border: 2px solid #5bb69e;
+    background: transparent;
+    color: #5bb69e;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    font-weight: 500;
+  }
+}

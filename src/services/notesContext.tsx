@@ -31,7 +31,7 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
   const { user, loading: authLoading } = useAuth();
 
   // Load notes from the backend
-  const refreshNotes = async () => {
+  const refreshNotes = React.useCallback(async () => {
     if (!user) {
       setNotes([]); // Empty notes for unauthenticated users
       setError('Not logged in');
@@ -59,7 +59,7 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   // Add a new note
   const addNote = async (title: string, content: string) => {
@@ -135,7 +135,7 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     if (!authLoading) { // Wait for auth to finish loading
       refreshNotes();
     }
-  }, [user, authLoading]); // lint disable
+  }, [user, authLoading, refreshNotes]);
 
   const value: NotesContextType = {
     notes,

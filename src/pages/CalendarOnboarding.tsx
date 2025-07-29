@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './CalendarOnboarding.css';
 import Navbar from '../components/NavBar';
+import { useNavigate } from 'react-router-dom';
 import { useCalendar } from '../services/calendarContext';
 import { useGoals } from '../services/goalsContext';
 import type { CalendarEvent } from '../services/calendarContext';
@@ -14,6 +15,7 @@ declare global {
 }
 
 const CalendarOnboarding: React.FC = () => {
+  const navigate = useNavigate();
   // Use shared calendar context instead of local state for events
   const { events: importedEvents, addEvents } = useCalendar();
   // Use shared goals context instead of local state for goals
@@ -572,6 +574,7 @@ const CalendarOnboarding: React.FC = () => {
 
             <div className="calendar-onboarding-done-btn-group">
               <button
+                onClick={() => navigate('/calendar-ai')}
                 className={
                   "calendar-onboarding-btn calendar-onboarding-btn--done" +
                   (hoveredButton === 'done' ? " calendar-onboarding-btn--hover-done" : "")

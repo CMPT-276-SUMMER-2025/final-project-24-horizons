@@ -11,6 +11,7 @@ import { GoalsProvider } from './services/goalsContext';
 import { NotesProvider } from './services/notesContext';
 import { FlashcardsProvider } from './services/flashcardsContext';
 import { LoadingScreen } from './components/LoadingScreen';
+import CalendarAI from './pages/CalendarAI';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
   const { user, loading } = useAuth();
@@ -39,6 +40,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <CalendarOnboarding />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/calendar-ai"
+        element={
+          <ProtectedRoute>
+            <CalendarAI />
           </ProtectedRoute>
         }
       />
