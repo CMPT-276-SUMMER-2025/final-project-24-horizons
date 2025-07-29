@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import './CalendarAI.css';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { collection, addDoc, onSnapshot, deleteDoc, doc, query, where, Timestamp, updateDoc } from 'firebase/firestore';
@@ -147,7 +147,10 @@ const CalendarAI = () => {
   const updateEvent = async (eventId: string, updates: Partial<Event>) => {
     try {
       const eventRef = doc(db, 'events', eventId);
-      const updateData: Partial<Event> = { ...updates };
+      // Create a separate object for Firebase update with proper typing
+      const updateData: any = { ...updates };
+      
+      // Convert Date to Timestamp only for Firebase storage
       if (updates.date) {
         updateData.date = Timestamp.fromDate(updates.date);
       }
