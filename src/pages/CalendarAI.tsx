@@ -26,42 +26,42 @@ const CalendarAI = () => {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const [viewMode, setViewMode] = useState<'week' | 'month'>('month');
   const [chatMessages, setChatMessages] = useState([
-  {
-    id: 1,
-    type: 'ai',
-    content: "Hi! I'm your AI calendar assistant. I can help you add, delete, move, and manage your events. Try saying something like 'add meeting tomorrow at 2pm'"
-  }
-]);
+    {
+      id: 1,
+      type: 'ai',
+      content: "Hi! I'm your AI calendar assistant. I can help you add, delete, move, and manage your events. Try saying something like 'add meeting tomorrow at 2pm'"
+    }
+  ]);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
-  
+
   const [pendingEvent, setPendingEvent] = useState<any>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflicts, setConflicts] = useState<Event[]>([]);
 
   const checkConflicts = (newDate: Date, newTime: string, duration: number = 60): Event[] => {
-  const newEventStart = new Date(newDate);
-  const [hours, minutes] = newTime.split(':').map(Number);
-  newEventStart.setHours(hours, minutes, 0, 0);
-  
-  
-  const newEventEnd = new Date(newEventStart);
-  newEventEnd.setMinutes(newEventEnd.getMinutes() + duration);
-  
-  const conflicts = events.filter(event => {
-    if (event.date.toDateString() !== newDate.toDateString()) {
-      return false;
-    }
-    
-    const existingStart = new Date(event.date);
-    const [existingHours, existingMinutes] = event.time.split(':').map(Number);
-    existingStart.setHours(existingHours, existingMinutes, 0, 0);
-    
-    const existingEnd = new Date(existingStart);
-    existingEnd.setMinutes(existingEnd.getMinutes() + 60);
-    return (newEventStart < existingEnd && newEventEnd > existingStart);
-  });
-  
-  return conflicts;
+    const newEventStart = new Date(newDate);
+    const [hours, minutes] = newTime.split(':').map(Number);
+    newEventStart.setHours(hours, minutes, 0, 0);
+
+
+    const newEventEnd = new Date(newEventStart);
+    newEventEnd.setMinutes(newEventEnd.getMinutes() + duration);
+
+    const conflicts = events.filter(event => {
+      if (event.date.toDateString() !== newDate.toDateString()) {
+        return false;
+      }
+
+      const existingStart = new Date(event.date);
+      const [existingHours, existingMinutes] = event.time.split(':').map(Number);
+      existingStart.setHours(existingHours, existingMinutes, 0, 0);
+
+      const existingEnd = new Date(existingStart);
+      existingEnd.setMinutes(existingEnd.getMinutes() + 60);
+      return (newEventStart < existingEnd && newEventEnd > existingStart);
+    });
+
+    return conflicts;
   };
 
   const processAIRequest = async (userInput: string) => {
@@ -77,10 +77,10 @@ const CalendarAI = () => {
       const userMessage = { id: Date.now(), type: 'user' as const, content: userInput };
       setChatMessages(prev => [...prev, userMessage]);
 
-      
+
       const actionTaken = await executeCalendarAction(userInput);
 
-      
+
       const eventsContext = events.map(e =>
         `${e.title} on ${e.date.toLocaleDateString()} at ${e.time}`
       ).join(', ');
@@ -100,15 +100,23 @@ const CalendarAI = () => {
       const aiMessage = { id: Date.now() + 1, type: 'ai' as const, content: response };
       setChatMessages(prev => [...prev, aiMessage]);
 
-    } catch (error) {
-      console.error('Error:', error);
-      const errorMessage = {
-        id: Date.now() + 1,
-        type: 'ai' as const,
-        content: `Error: ${error.message || 'Unknown error'}`
-      };
-      setChatMessages(prev => [...prev, errorMessage]);
-    }
+    } catch (error: unknown) {
+        console.error('Error:', error);
+        
+        let errorMessage = 'Unknown error occurred';
+        if (error instanceof Error) {
+          errorMessage = error.message;
+        } else if (typeof error === 'string') {
+          errorMessage = error;
+        }
+        
+        const aiErrorMessage = {
+          id: Date.now() + 1,
+          type: 'ai' as const,
+          content: `Error: ${errorMessage}`
+        };
+        setChatMessages(prev => [...prev, aiErrorMessage]);
+      }
 
     setIsProcessing(false);
     setAiInput('');
@@ -118,7 +126,7 @@ const CalendarAI = () => {
     try {
       await addDoc(collection(db, 'events'), {
         ...newEvent,
-        date: Timestamp.fromDate(newEvent.date), 
+        date: Timestamp.fromDate(newEvent.date),
         userId,
         createdAt: Timestamp.now()
       });
@@ -140,7 +148,7 @@ const CalendarAI = () => {
   const updateEvent = async (eventId: string, updates: Partial<Event>) => {
     try {
       const eventRef = doc(db, 'events', eventId);
-      const updateData: any = { ...updates }; 
+      const updateData: any = { ...updates };
       if (updates.date) {
         updateData.date = Timestamp.fromDate(updates.date);
       }
@@ -152,14 +160,14 @@ const CalendarAI = () => {
     }
   };
 
-  
+
   const findAvailableSlots = (date: Date, duration: number = 60) => {
     const dayEvents = events.filter(e =>
       e.date.toDateString() === date.toDateString()
     );
 
-    
-    const workingHours = [9, 10, 11, 13, 14, 15, 16, 17]; 
+
+    const workingHours = [9, 10, 11, 13, 14, 15, 16, 17];
     const availableSlots = workingHours.filter(hour => {
       return !dayEvents.some(event => {
         const eventHour = parseInt(event.time.split(':')[0]);
@@ -179,7 +187,7 @@ const CalendarAI = () => {
         return {
           id: doc.id,
           title: data.title,
-          date: data.date.toDate(), 
+          date: data.date.toDate(),
           time: data.time,
           description: data.description,
           location: data.location,
@@ -191,7 +199,7 @@ const CalendarAI = () => {
       setEvents(eventsData);
     });
 
-    return () => unsubscribe(); 
+    return () => unsubscribe();
   }, [userId]);
 
   const executeCalendarAction = async (userInput: string): Promise<boolean> => {
@@ -266,45 +274,45 @@ const CalendarAI = () => {
         return false;
       }
 
-      
+
       switch (parsedData.action) {
         case 'add_event':
-  const newEventData = {
-    title: parsedData.title || 'New Event',
-    date: parsedData.date ? (() => {
-      const [year, month, day] = parsedData.date.split('-').map(Number);
-      return new Date(year, month - 1, day);
-    })() : new Date(),
-    time: parsedData.time || '14:00',
-    description: parsedData.description || 'Added by AI Assistant',
-    location: '',
-    type: 'ai-generated',
-    category: parsedData.category || 'event'
-  };
-  
-  
-  const detectedConflicts = checkConflicts(newEventData.date, newEventData.time);
-  
-  if (detectedConflicts.length > 0) {
-    
-    setPendingEvent(newEventData);
-    setConflicts(detectedConflicts);
-    setShowConflictDialog(true);
-    
-    
-    const conflictMessage = {
-      id: Date.now() + 2,
-      type: 'ai' as const,
-      content: `⚠️ Scheduling conflict detected! You already have "${detectedConflicts[0].title}" at ${detectedConflicts[0].time} on this date. Would you like to proceed anyway or choose a different time?`
-    };
-    setChatMessages(prev => [...prev, conflictMessage]);
-    
-    return true; 
-  } else {
-    
-    addEvent(newEventData);
-    return true;
-  }
+          const newEventData = {
+            title: parsedData.title || 'New Event',
+            date: parsedData.date ? (() => {
+              const [year, month, day] = parsedData.date.split('-').map(Number);
+              return new Date(year, month - 1, day);
+            })() : new Date(),
+            time: parsedData.time || '14:00',
+            description: parsedData.description || 'Added by AI Assistant',
+            location: '',
+            type: 'ai-generated',
+            category: parsedData.category || 'event'
+          };
+
+
+          const detectedConflicts = checkConflicts(newEventData.date, newEventData.time);
+
+          if (detectedConflicts.length > 0) {
+
+            setPendingEvent(newEventData);
+            setConflicts(detectedConflicts);
+            setShowConflictDialog(true);
+
+
+            const conflictMessage = {
+              id: Date.now() + 2,
+              type: 'ai' as const,
+              content: `⚠️ Scheduling conflict detected! You already have "${detectedConflicts[0].title}" at ${detectedConflicts[0].time} on this date. Would you like to proceed anyway or choose a different time?`
+            };
+            setChatMessages(prev => [...prev, conflictMessage]);
+
+            return true;
+          } else {
+
+            addEvent(newEventData);
+            return true;
+          }
 
         case 'delete_events':
           const deleteDate = parsedData.date ? (() => {
@@ -314,21 +322,21 @@ const CalendarAI = () => {
 
           let eventsToDelete = events;
 
-          
+
           if (deleteDate) {
             eventsToDelete = events.filter(event =>
               event.date.toDateString() === deleteDate.toDateString()
             );
           }
 
-         
+
           if (parsedData.title_filter) {
             eventsToDelete = eventsToDelete.filter(event =>
               event.title.toLowerCase().includes(parsedData.title_filter.toLowerCase())
             );
           }
 
-          
+
           for (const event of eventsToDelete) {
             await deleteEvent(event.id);
           }
@@ -343,35 +351,38 @@ const CalendarAI = () => {
                 event.title.toLowerCase().includes(parsedData.title_filter.toLowerCase()) :
                 true;
 
-            const dateMatch = parsedData.original_date ?
-              event.date.toDateString() === new Date(parsedData.original_date).toDateString() :
-              true;
+             const dateMatch = parsedData.original_date ? (() => {
+              const [year, month, day] = parsedData.original_date.split('-').map(Number);
+              const targetDate = new Date(year, month - 1, day);
+              return event.date.toDateString() === targetDate.toDateString();
+              })() : true;
 
             return titleMatch && dateMatch;
           });
 
+
           if (eventToUpdate) {
             const updates: any = {};
 
-           
+
             if (parsedData.new_title) {
               updates.title = parsedData.new_title;
             }
 
-           
+
             if (parsedData.new_date) {
               const [year, month, day] = parsedData.new_date.split('-').map(Number);
               updates.date = new Date(year, month - 1, day);
             }
 
-            
+
             if (parsedData.new_time) {
               updates.time = parsedData.new_time;
             }
-
             await updateEvent(eventToUpdate.id, updates);
             return true;
           }
+          
           return false;
 
         default:
@@ -385,59 +396,59 @@ const CalendarAI = () => {
   };
 
   const handleConflictConfirm = async () => {
-  if (pendingEvent) {
-    await addEvent(pendingEvent);
-    const confirmMessage = {
+    if (pendingEvent) {
+      await addEvent(pendingEvent);
+      const confirmMessage = {
+        id: Date.now(),
+        type: 'ai' as const,
+        content: `✅ Event "${pendingEvent.title}" added despite the conflict.`
+      };
+      setChatMessages(prev => [...prev, confirmMessage]);
+    }
+    setShowConflictDialog(false);
+    setPendingEvent(null);
+    setConflicts([]);
+  };
+
+  const handleConflictCancel = () => {
+    const cancelMessage = {
       id: Date.now(),
       type: 'ai' as const,
-      content: `✅ Event "${pendingEvent.title}" added despite the conflict.`
+      content: `❌ Event creation cancelled. Try a different time!`
     };
-    setChatMessages(prev => [...prev, confirmMessage]);
-  }
-  setShowConflictDialog(false);
-  setPendingEvent(null);
-  setConflicts([]);
-};
+    setChatMessages(prev => [...prev, cancelMessage]);
 
-const handleConflictCancel = () => {
-  const cancelMessage = {
-    id: Date.now(),
-    type: 'ai' as const,
-    content: `❌ Event creation cancelled. Try a different time!`
+    setShowConflictDialog(false);
+    setPendingEvent(null);
+    setConflicts([]);
   };
-  setChatMessages(prev => [...prev, cancelMessage]);
-  
-  setShowConflictDialog(false);
-  setPendingEvent(null);
-  setConflicts([]);
-};
 
-const handleConflictReschedule = async () => {
-  if (pendingEvent) {
-    // Find next available slot
-    const availableSlots = findAvailableSlots(pendingEvent.date);
-    if (availableSlots.length > 0) {
-      const rescheduledEvent = { ...pendingEvent, time: availableSlots[0] };
-      await addEvent(rescheduledEvent);
-      
-      const rescheduleMessage = {
-        id: Date.now(),
-        type: 'ai' as const,
-        content: `🔄 Event rescheduled to ${availableSlots[0]} to avoid conflicts.`
-      };
-      setChatMessages(prev => [...prev, rescheduleMessage]);
-    } else {
-      const noSlotMessage = {
-        id: Date.now(),
-        type: 'ai' as const,
-        content: `❌ No available slots found on this date. Try a different day.`
-      };
-      setChatMessages(prev => [...prev, noSlotMessage]);
+  const handleConflictReschedule = async () => {
+    if (pendingEvent) {
+      // Find next available slot
+      const availableSlots = findAvailableSlots(pendingEvent.date);
+      if (availableSlots.length > 0) {
+        const rescheduledEvent = { ...pendingEvent, time: availableSlots[0] };
+        await addEvent(rescheduledEvent);
+
+        const rescheduleMessage = {
+          id: Date.now(),
+          type: 'ai' as const,
+          content: `🔄 Event rescheduled to ${availableSlots[0]} to avoid conflicts.`
+        };
+        setChatMessages(prev => [...prev, rescheduleMessage]);
+      } else {
+        const noSlotMessage = {
+          id: Date.now(),
+          type: 'ai' as const,
+          content: `❌ No available slots found on this date. Try a different day.`
+        };
+        setChatMessages(prev => [...prev, noSlotMessage]);
+      }
     }
-  }
-  setShowConflictDialog(false);
-  setPendingEvent(null);
-  setConflicts([]);
+    setShowConflictDialog(false);
+    setPendingEvent(null);
+    setConflicts([]);
   };
 
   const navigatePrevious = () => {
@@ -448,7 +459,7 @@ const handleConflictReschedule = async () => {
 
   const navigateNext = () => {
     const newDate = new Date(selectedDate);
-    newDate.setMonth(newDate.getMonth() + 1); 
+    newDate.setMonth(newDate.getMonth() + 1);
     setSelectedDate(newDate);
   };
 
@@ -487,7 +498,7 @@ const handleConflictReschedule = async () => {
       </div>
     );
 
-    
+
     const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     dayLabels.forEach((label, i) => {
       days.push(
@@ -497,14 +508,14 @@ const handleConflictReschedule = async () => {
       );
     });
 
-    
+
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
         <div key={`empty-${i}`} className="calendar-ai-empty-day" />
       );
     }
 
-    
+
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDate(day);
       const isToday = new Date().toDateString() === new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day).toDateString();
@@ -546,7 +557,7 @@ const handleConflictReschedule = async () => {
       <Navbar />
       <div className="calendar-ai-root">
         <div className="calendar-ai-container">
-          {/* Calendar Section */}
+          
           <div className={`calendar-ai-calendar-section ${isPanelOpen ? 'calendar-ai-calendar-section--with-panel' : ''}`}>
             <div className="calendar-ai-calendar-controls">
               <div className="calendar-ai-calendar-nav">
@@ -575,7 +586,7 @@ const handleConflictReschedule = async () => {
             </div>
           </div>
 
-          {/* AI Chat Panel */}
+          
           <div className={`calendar-ai-chat-panel ${isPanelOpen ? 'calendar-ai-chat-panel--open' : 'calendar-ai-chat-panel--closed'}`}>
             <div className="calendar-ai-chat-header">
               <h2 className="calendar-ai-chat-title">Gemini</h2>
@@ -632,31 +643,31 @@ const handleConflictReschedule = async () => {
           )}
 
           {showConflictDialog && (
-          <div className="calendar-ai-conflict-dialog">
-            <div className="calendar-ai-conflict-content">
-              <h3>⚠️ Scheduling Conflict</h3>
-              <p>The following conflicts were detected:</p>
-              <ul>
-                {conflicts.map(conflict => (
-                  <li key={conflict.id}>
-                    {conflict.title} at {conflict.time}
-                  </li>
-                ))}
-              </ul>
-              <div className="calendar-ai-conflict-buttons">
-                <button onClick={handleConflictConfirm} className="calendar-ai-btn-confirm">
-                  Add Anyway
-                </button>
-                <button onClick={handleConflictReschedule} className="calendar-ai-btn-reschedule">
-                  Auto-Reschedule
-                </button>
-                <button onClick={handleConflictCancel} className="calendar-ai-btn-cancel">
-                  Cancel
-                </button>
+            <div className="calendar-ai-conflict-dialog">
+              <div className="calendar-ai-conflict-content">
+                <h3>⚠️ Scheduling Conflict</h3>
+                <p>The following conflicts were detected:</p>
+                <ul>
+                  {conflicts.map(conflict => (
+                    <li key={conflict.id}>
+                      {conflict.title} at {conflict.time}
+                    </li>
+                  ))}
+                </ul>
+                <div className="calendar-ai-conflict-buttons">
+                  <button onClick={handleConflictConfirm} className="calendar-ai-btn-confirm">
+                    Add Anyway
+                  </button>
+                  <button onClick={handleConflictReschedule} className="calendar-ai-btn-reschedule">
+                    Auto-Reschedule
+                  </button>
+                  <button onClick={handleConflictCancel} className="calendar-ai-btn-cancel">
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
         </div>
       </div>
     </>
