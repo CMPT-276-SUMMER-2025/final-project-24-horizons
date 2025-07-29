@@ -16,7 +16,6 @@ declare global {
 
 const CalendarOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  const [goals, setGoals] = useState<string[]>(['Gym', 'Job/ Project']);
   // Use shared calendar context instead of local state for events
   const { events: importedEvents, addEvents } = useCalendar();
   // Use shared goals context instead of local state for goals

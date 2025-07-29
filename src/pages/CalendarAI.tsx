@@ -24,7 +24,6 @@ const CalendarAI = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY || '');
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const [viewMode, setViewMode] = useState<'week' | 'month'>('month');
   const [chatMessages, setChatMessages] = useState([
     {
       id: 1,
@@ -34,7 +33,7 @@ const CalendarAI = () => {
   ]);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
 
-  const [pendingEvent, setPendingEvent] = useState<any>(null);
+  const [pendingEvent, setPendingEvent] = useState<Omit<Event, 'id'> | null>(null);
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflicts, setConflicts] = useState<Event[]>([]);
 
@@ -78,14 +77,14 @@ const CalendarAI = () => {
       setChatMessages(prev => [...prev, userMessage]);
 
 
-      const actionTaken = await executeCalendarAction(userInput);
+      await executeCalendarAction(userInput);
 
 
       const eventsContext = events.map(e =>
         `${e.title} on ${e.date.toLocaleDateString()} at ${e.time}`
       ).join(', ');
 
-      let prompt = `You are a calendar assistant that can add, modify, and analyze calendar events. 
+      const prompt = `You are a calendar assistant that can add, modify, and analyze calendar events. 
       Current events: ${eventsContext}. 
       User request: "${userInput}".
       Context: Today is ${new Date().toDateString()}
@@ -148,7 +147,7 @@ const CalendarAI = () => {
   const updateEvent = async (eventId: string, updates: Partial<Event>) => {
     try {
       const eventRef = doc(db, 'events', eventId);
-      const updateData: any = { ...updates };
+      const updateData: Partial<Event> = { ...updates };
       if (updates.date) {
         updateData.date = Timestamp.fromDate(updates.date);
       }
@@ -161,7 +160,7 @@ const CalendarAI = () => {
   };
 
 
-  const findAvailableSlots = (date: Date, duration: number = 60) => {
+  const findAvailableSlots = (date: Date) => {
     const dayEvents = events.filter(e =>
       e.date.toDateString() === date.toDateString()
     );
@@ -266,7 +265,7 @@ const CalendarAI = () => {
       try {
         const cleanJson = response.replace(/```json\n?|\n?```/g, '').trim();
         parsedData = JSON.parse(cleanJson);
-      } catch (e) {
+      } catch {
         console.log('Failed to parse Gemini response:', response);
         return false;
       }
@@ -276,7 +275,7 @@ const CalendarAI = () => {
 
 
       switch (parsedData.action) {
-        case 'add_event':
+        case 'add_event': {
           const newEventData = {
             title: parsedData.title || 'New Event',
             date: parsedData.date ? (() => {
@@ -290,7 +289,6 @@ const CalendarAI = () => {
             category: parsedData.category || 'event'
           };
 
-
           const detectedConflicts = checkConflicts(newEventData.date, newEventData.time);
 
           if (detectedConflicts.length > 0) {
@@ -298,7 +296,6 @@ const CalendarAI = () => {
             setPendingEvent(newEventData);
             setConflicts(detectedConflicts);
             setShowConflictDialog(true);
-
 
             const conflictMessage = {
               id: Date.now() + 2,
@@ -313,8 +310,9 @@ const CalendarAI = () => {
             addEvent(newEventData);
             return true;
           }
+        }
 
-        case 'delete_events':
+        case 'delete_events': {
           const deleteDate = parsedData.date ? (() => {
             const [year, month, day] = parsedData.date.split('-').map(Number);
             return new Date(year, month - 1, day);
@@ -341,10 +339,11 @@ const CalendarAI = () => {
             await deleteEvent(event.id);
           }
           return true;
+        }
 
         case 'move_event':
-        case 'update_event':
-          let eventToUpdate = events.find(event => {
+        case 'update_event': {
+          const eventToUpdate = events.find(event => {
             const titleMatch = parsedData.original_title ?
               event.title.toLowerCase().includes(parsedData.original_title.toLowerCase()) :
               parsedData.title_filter ?
@@ -362,7 +361,7 @@ const CalendarAI = () => {
 
 
           if (eventToUpdate) {
-            const updates: any = {};
+            const updates: Partial<Event> = {};
 
 
             if (parsedData.new_title) {
@@ -384,6 +383,7 @@ const CalendarAI = () => {
           }
           
           return false;
+        }
 
         default:
           return false;

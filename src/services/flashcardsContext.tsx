@@ -31,7 +31,7 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
   const { user, loading: authLoading } = useAuth();
 
   // Load flashcards from the backend
-  const refreshFlashcards = async () => {
+  const refreshFlashcards = React.useCallback(async () => {
     if (!user) {
       setFlashcards([]);
       setError('Not logged in');
@@ -56,7 +56,7 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user]);
 
   // Add new flashcard
   const addFlashcard = async (front: string, back: string) => {
@@ -149,7 +149,7 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
       setFlashcards([]);
       setError(null);
     }
-  }, [user, authLoading]); // lint disable
+  }, [user, authLoading, refreshFlashcards]);
 
   const value: FlashcardsContextType = {
     flashcards,
