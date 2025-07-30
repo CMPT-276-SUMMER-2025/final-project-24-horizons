@@ -13,6 +13,21 @@ interface ErrorResponse {
   error: string;
 }
 
+const handleApiError = async (response: Response) => {
+  let errorData: any;
+  try {
+    errorData = await response.json();
+  } catch {
+    errorData = { error: `HTTP ${response.status}` };
+  }
+
+  if (response.status === 401) {
+    throw new Error('Authentication failed. Please log in again.');
+  }
+
+  throw new Error(errorData.error || errorData.message || `Request failed with status ${response.status}`);
+};
+
 // Get user's flashcards from the backend
 export const fetchFlashcards = async (): Promise<Flashcard[]> => {
   try {
@@ -25,7 +40,7 @@ export const fetchFlashcards = async (): Promise<Flashcard[]> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch flashcards: ${response.status}`);
+      await handleApiError(response);
     }
 
     const data: Flashcard[] = await response.json();

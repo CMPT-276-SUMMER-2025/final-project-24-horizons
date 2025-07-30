@@ -51,13 +51,27 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(cors({
-  origin: [
-    process.env.CLIENT_URL || 'http://localhost:5173',
-    'https://studysync-backend.uttamsharma.com',
-    'https://studysync-ai.netlify.app'
-    // Add any other domains you want to allow
-  ],
-  credentials: true
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      process.env.CLIENT_URL || 'http://localhost:5173',
+      'https://studysync-backend.uttamsharma.com',
+      'https://studysync-ai.netlify.app'
+    ];
+    
+    // Allow requests with no origin (mobile apps, etc.)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Cookie'],
+  exposedHeaders: ['Set-Cookie'],
+  optionsSuccessStatus: 200
 }));
 app.use(express.json());
 app.use(cookieParser());
@@ -116,9 +130,9 @@ app.post('/api/auth/google', async (req, res) => {
     res.cookie('auth_token', jwtToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      path: '/'
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     
     console.log(`🍪 Auth cookie set for user: ${user.email}`);
@@ -143,11 +157,16 @@ app.post('/api/auth/google', async (req, res) => {
 const authenticateToken = (req, res, next) => {
   console.log('🔍 Authenticating token...');
   console.log('Available cookies:', req.cookies);
+  console.log('Headers:', req.headers);
+  
   const token = req.cookies.auth_token;
   
   if (!token) {
     console.log('❌ No token provided');
-    return res.status(401).json({ error: 'No token provided' });
+    return res.status(401).json({ 
+      error: 'No token provided',
+      message: 'Authentication required. Please log in.' 
+    });
   }
   
   try {
@@ -156,8 +175,16 @@ const authenticateToken = (req, res, next) => {
     // Add token expiry check
     if (decoded.exp && Date.now() >= decoded.exp * 1000) {
       console.log('❌ Token expired');
-      res.clearCookie('auth_token');
-      return res.status(401).json({ error: 'Token expired' });
+      res.clearCookie('auth_token', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/'
+      });
+      return res.status(401).json({ 
+        error: 'Token expired',
+        message: 'Your session has expired. Please log in again.' 
+      });
     }
     
     console.log(`✅ Token verified for user: ${decoded.email}`);
@@ -165,8 +192,16 @@ const authenticateToken = (req, res, next) => {
     next();
   } catch (error) {
     console.error('❌ Token verification failed:', error.message);
-    res.clearCookie('auth_token');
-    res.status(401).json({ error: 'Invalid token' });
+    res.clearCookie('auth_token', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      path: '/'
+    });
+    res.status(401).json({ 
+      error: 'Invalid token',
+      message: 'Authentication failed. Please log in again.' 
+    });
   }
 };
 

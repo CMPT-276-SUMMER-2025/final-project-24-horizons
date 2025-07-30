@@ -8,6 +8,21 @@ interface ErrorResponse {
   error: string;
 }
 
+const handleApiError = async (response: Response) => {
+  let errorData: any;
+  try {
+    errorData = await response.json();
+  } catch {
+    errorData = { error: `HTTP ${response.status}` };
+  }
+
+  if (response.status === 401) {
+    throw new Error('Authentication failed. Please log in again.');
+  }
+
+  throw new Error(errorData.error || errorData.message || `Request failed with status ${response.status}`);
+};
+
 // Get user's goals from the backend
 export const fetchGoals = async (): Promise<string[]> => {
   try {
@@ -20,7 +35,7 @@ export const fetchGoals = async (): Promise<string[]> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch goals: ${response.status}`);
+      await handleApiError(response);
     }
 
     const data: GoalsResponse = await response.json();

@@ -13,6 +13,21 @@ interface ErrorResponse {
   error: string;
 }
 
+const handleApiError = async (response: Response) => {
+  let errorData: any;
+  try {
+    errorData = await response.json();
+  } catch {
+    errorData = { error: `HTTP ${response.status}` };
+  }
+
+  if (response.status === 401) {
+    throw new Error('Authentication failed. Please log in again.');
+  }
+
+  throw new Error(errorData.error || errorData.message || `Request failed with status ${response.status}`);
+};
+
 // Get user's notes from the backend
 export const fetchNotes = async (): Promise<Note[]> => {
   try {
@@ -25,7 +40,7 @@ export const fetchNotes = async (): Promise<Note[]> => {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch notes: ${response.status}`);
+      await handleApiError(response);
     }
 
     const data: Note[] = await response.json();
@@ -49,8 +64,7 @@ export const addNoteToServer = async (title: string, content: string): Promise<N
     });
 
     if (!response.ok) {
-      const errorData: ErrorResponse = await response.json();
-      throw new Error(errorData.error || `Failed to add note: ${response.status}`);
+      await handleApiError(response);
     }
 
     const data: Note = await response.json();

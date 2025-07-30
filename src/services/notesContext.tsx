@@ -33,8 +33,8 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
   // Load notes from the backend
   const refreshNotes = React.useCallback(async () => {
     if (!user) {
-      setNotes([]); // Empty notes for unauthenticated users
-      setError('Not logged in');
+      setNotes([]);
+      setError(null);
       return;
     }
 
@@ -46,15 +46,12 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
     } catch (err: unknown) {
       console.error('Failed to load notes:', err);
       
-      // Check if it's an authentication error
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-      if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
-        console.log('User not authenticated, using empty notes');
+      if (errorMessage.includes('Authentication failed')) {
         setNotes([]);
-        setError('Not logged in');
+        setError('Please log in to view your notes');
       } else {
         setError(errorMessage || 'Failed to load notes');
-        // Keep existing notes on non-auth errors
       }
     } finally {
       setIsLoading(false);
