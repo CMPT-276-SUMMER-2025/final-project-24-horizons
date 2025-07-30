@@ -5,13 +5,14 @@ import Settings from './pages/Settings';
 import StudyDashboard from './pages/StudyDashboard';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CalendarOnboarding from './pages/CalendarOnboarding';
+import CalendarAI from './pages/CalendarAI';
 import { AuthProvider, useAuth } from './services/authContext';
 import { CalendarProvider } from './services/calendarContext';
 import { GoalsProvider } from './services/goalsContext';
 import { NotesProvider } from './services/notesContext';
 import { FlashcardsProvider } from './services/flashcardsContext';
 import { LoadingScreen } from './components/LoadingScreen';
-import CalendarAI from './pages/CalendarAI';
+import { TimerProvider } from './services/TimerContext';
 
 function ProtectedRoute({ children }: { children: React.ReactElement }) {
   const { user, loading } = useAuth();
@@ -71,9 +72,7 @@ function AppRoutes() {
   );
 }
 
-
 function App() {
-  // Apply saved theme when the app loads
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'dark';
     document.documentElement.setAttribute('data-theme', savedTheme);
@@ -82,15 +81,17 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CalendarProvider>
-          <GoalsProvider>
-            <NotesProvider>
-              <FlashcardsProvider>
-                <AppRoutes />
-              </FlashcardsProvider>
-            </NotesProvider>
-          </GoalsProvider>
-        </CalendarProvider>
+        <TimerProvider>
+          <CalendarProvider>
+            <GoalsProvider>
+              <NotesProvider>
+                <FlashcardsProvider>
+                  <AppRoutes />
+                </FlashcardsProvider>
+              </NotesProvider>
+            </GoalsProvider>
+          </CalendarProvider>
+        </TimerProvider>
       </AuthProvider>
     </BrowserRouter>
   );
