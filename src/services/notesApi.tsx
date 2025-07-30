@@ -16,6 +16,8 @@ interface ErrorResponse {
 // Get user's notes from the backend
 export const fetchNotes = async (): Promise<Note[]> => {
   try {
+    console.log('🔍 Fetching notes from:', `${API_BASE_URL}/api/notes`);
+    
     const response = await fetch(`${API_BASE_URL}/api/notes`, {
       method: 'GET',
       credentials: 'include', // Include cookies for authentication
@@ -24,14 +26,24 @@ export const fetchNotes = async (): Promise<Note[]> => {
       },
     });
 
+    console.log('📊 Notes response status:', response.status);
+    console.log('📊 Notes response headers:', Object.fromEntries(response.headers.entries()));
+
     if (!response.ok) {
+      if (response.status === 401) {
+        console.error('🔒 Authentication failed - user not logged in or token expired');
+        throw new Error('Authentication required. Please log in again.');
+      }
+      const errorText = await response.text();
+      console.error('❌ Error response:', errorText);
       throw new Error(`Failed to fetch notes: ${response.status}`);
     }
 
     const data: Note[] = await response.json();
+    console.log('✅ Notes fetched successfully:', data.length, 'notes');
     return data;
   } catch (error) {
-    console.error('Error fetching notes:', error);
+    console.error('❌ Error fetching notes:', error);
     throw error;
   }
 };

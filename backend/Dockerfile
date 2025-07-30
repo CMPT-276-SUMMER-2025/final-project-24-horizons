@@ -14,5 +14,9 @@ COPY . .
 # Expose port
 EXPOSE 3009
 
+# Missing DATABASE_PATH environment variable
+ENV NODE_ENV=production
+ENV DATABASE_PATH=./database/studysync.db
+
 # Start the app
 CMD ["npm", "start"]
