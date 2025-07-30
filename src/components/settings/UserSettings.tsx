@@ -1,11 +1,14 @@
+import { useTimer } from '../../services/TimerContext';
 import { useAuth } from '../../services/authContext';
 import { useEffect, useState } from 'react';
 
+
 function UserSettings() {
   const { user } = useAuth();
-
+  const { sessionDuration, setSessionDuration } = useTimer();
   // ✅ Theme state for dropdown
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'dark');
+  
 
   // ✅ Apply the theme to the app when changed
   useEffect(() => {
@@ -37,10 +40,10 @@ function UserSettings() {
         </div>
         <div className="setting-item">
           <label>Default Study Session</label>
-          <select>
-            <option>25 min</option>
-            <option>45 min</option>
-            <option>60 min</option>
+          <select value={sessionDuration} onChange={(e) => setSessionDuration(parseInt(e.target.value))}>
+            <option value={25}>25 min</option>
+            <option value={45}>45 min</option>
+            <option value={60}>60 min</option>
           </select>
         </div>
         <div className="setting-item">

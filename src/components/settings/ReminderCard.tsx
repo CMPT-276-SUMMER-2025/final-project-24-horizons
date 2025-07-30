@@ -1,22 +1,22 @@
-import { useTimer } from '../../services/TimerContext'; // ✅ Step 1: import context
+import { useTimer } from '../../services/TimerContext';
 
 type ReminderCardProps = {
   onStart: () => void;
 };
 
 const ReminderCard = ({ onStart }: ReminderCardProps) => {
-  const { startTimer } = useTimer(); // ✅ Step 2: use timer context
+  const { startTimer, sessionDuration } = useTimer(); // use sessionDuration from context
 
   const handleStart = () => {
-    startTimer(25);  // Start a 25-minute timer
-    onStart();        // Hide the reminder card
+    startTimer(sessionDuration); // start with selected duration
+    onStart(); // hide the reminder card
   };
 
   return (
     <section className="settings-section">
       <h2>Reminder</h2>
       <h3>Time to study!</h3>
-      <p>Ready for your 25-minute session?</p>
+      <p>Ready for your {sessionDuration}-minute session?</p>
       <div className="button-group">
         <button className="start-button" onClick={handleStart}>Start</button>
         <button className="snooze-button">Snooze</button>
