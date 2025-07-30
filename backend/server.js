@@ -129,10 +129,11 @@ app.post('/api/auth/google', async (req, res) => {
     // Set HTTP-only cookie
     res.cookie('auth_token', jwtToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true, // Must be true for HTTPS
+      sameSite: 'none', // Required for cross-domain
       path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      domain: '.uttamsharma.com' // Add domain for subdomain cookies
     });
     
     console.log(`🍪 Auth cookie set for user: ${user.email}`);
