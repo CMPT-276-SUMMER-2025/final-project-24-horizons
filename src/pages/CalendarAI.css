@@ -1,7 +1,8 @@
 /* Interface for gemini overlay */
 
 .calendar-ai-root {
-  background-color: #2c3e50;
+  /*background-color: #2c3e50;*/
+  background-color: var(--color-bg);
   min-height: 100vh;
   width: 100%;
   padding: 0;
@@ -18,7 +19,8 @@
 /* Calendar Section */
 .calendar-ai-calendar-section {
   flex: 1;
-  background-color: #3b4a61;
+  /*background-color: #3b4a61;*/
+  background-color: var(--color-gray);
   transition: all 0.3s ease;
   padding: 2rem;
   border-radius: 16px;
@@ -50,7 +52,8 @@
 .calendar-ai-current-month {
   font-size: 1.2rem;
   font-weight: 600;
-  color: #ffffff;
+  /*color: #ffffff;*/
+  color: var(--color-text);
   margin: 0 1rem;
 }
 
@@ -228,7 +231,8 @@
   top: 0;
   width: 400px;
   height: 100vh;
-  background-color: #3b4a61;
+  /*background-color: #3b4a61;*/
+  background-color: var(--color-gray);
   border-left: 2px solid #5bb69e;
   transition: transform 0.3s ease;
   display: flex;
@@ -245,7 +249,8 @@
 }
 
 .calendar-ai-chat-header {
-  background-color: #2c3e50;
+  /*background-color: #2c3e50;*/
+  background-color: var(--color-dark);
   color: white;
   padding: 1.5rem;
   display: flex;
@@ -258,7 +263,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
-  color: #ffffff;
+  color: var(--color-text);
 }
 
 .calendar-ai-panel-toggle {
@@ -301,8 +306,10 @@
 }
 
 .calendar-ai-message--ai {
-  background-color: #4a5668;
-  color: #ffffff;
+  /*background-color: #4a5668;*/
+  background-color: var(--color-textbox);
+  /*color: #ffffff;*/
+  color:var(--color-text);
   border: 1px solid #5bb69e;
 }
 
@@ -317,6 +324,7 @@
 .calendar-ai-chat-input-container {
   padding: 1.5rem;
   background-color: #2c3e50;
+  background-color: var(--color-dark);
   border-top: 1px solid #5bb69e;
   display: flex;
   gap: 0.75rem;
@@ -327,7 +335,9 @@
   flex: 1;
   padding: 0.75rem 1rem;
   background-color: #4a5668;
-  color: #ffffff;
+  background-color: var(--color-textbox);
+  /*color: #ffffff;*/
+  color:var(--color-text);
   border: 2px solid #5bb69e;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -337,6 +347,7 @@
 
 .calendar-ai-chat-input::placeholder {
   color: #a0a0a0;
+  /*color: var(--color-text)*/
 }
 
 .calendar-ai-chat-input:focus {
