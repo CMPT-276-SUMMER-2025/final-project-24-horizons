@@ -88,3 +88,32 @@
     padding: 0.15em 0.3em;
   }
 }
+
+.navbar-timer {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.timer-display {
+  font-size: 1.1em;
+  font-weight: bold;
+  color: var(--color-primary);
+}
+
+.stop-button {
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: transform 0.2s ease;
+}
+
+.stop-button:hover {
+  transform: scale(1.05);
+}
