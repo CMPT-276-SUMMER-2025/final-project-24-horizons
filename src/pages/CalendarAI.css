@@ -120,7 +120,7 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   grid-template-rows: auto auto repeat(6, 1fr);
-  height: 600px;
+  height: 100%; 
 }
 
 .calendar-ai-month-header {
@@ -152,7 +152,7 @@
   border: 1px solid #333;
   padding: 0.5rem;
   position: relative;
-  min-height: 80px;
+  min-height: 60px;
   transition: all 0.2s ease;
 }
 
@@ -228,10 +228,9 @@
 .calendar-ai-chat-panel {
   position: fixed;
   right: 0;
-  top: 0;
+  top: 50px; 
   width: 400px;
-  height: 100vh;
-  /*background-color: #3b4a61;*/
+  height: calc(100vh - 45px);
   background-color: var(--color-gray);
   border-left: 2px solid #5bb69e;
   transition: transform 0.3s ease;
@@ -249,7 +248,6 @@
 }
 
 .calendar-ai-chat-header {
-  /*background-color: #2c3e50;*/
   background-color: var(--color-dark);
   color: white;
   padding: 1.5rem;

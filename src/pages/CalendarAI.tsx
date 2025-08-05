@@ -147,10 +147,7 @@ const CalendarAI = () => {
   const updateEvent = async (eventId: string, updates: Partial<Event>) => {
     try {
       const eventRef = doc(db, 'events', eventId);
-      // Create a separate object for Firebase update with proper typing
       const updateData: any = { ...updates };
-      
-      // Convert Date to Timestamp only for Firebase storage
       if (updates.date) {
         updateData.date = Timestamp.fromDate(updates.date);
       }
