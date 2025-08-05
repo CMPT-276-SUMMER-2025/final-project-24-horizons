@@ -10,17 +10,21 @@ console.log('Firebase Config Check:', {
 });
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCGvsJzOpkOdQT-iiOhEpRtCE3Q2oLklhE',
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'studysync-ai-83ae6.firebaseapp.com',
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'studysync-ai-83ae6',
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'studysync-ai-83ae6.firebasestorage.app',
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '365968725293',
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:365968725293:web:17a02f4a75547cdbe46fac'
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
-// Validate that we have at least an API key
-if (!firebaseConfig.apiKey || firebaseConfig.apiKey === 'AIzaSyCGvsJzOpkOdQT-iiOhEpRtCE3Q2oLklhE') {
-  console.error('⚠️ Firebase API key is missing and is therefore using the default value.');
+// Validate that we have required configuration
+if (!firebaseConfig.apiKey) {
+  throw new Error('Firebase API key is missing. Please check your environment variables.');
+}
+
+if (!firebaseConfig.projectId) {
+  throw new Error('Firebase project ID is missing. Please check your environment variables.');
 }
 
 const app = initializeApp(firebaseConfig);
