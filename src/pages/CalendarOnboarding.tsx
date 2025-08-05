@@ -16,14 +16,11 @@ declare global {
 
 const CalendarOnboarding: React.FC = () => {
   const navigate = useNavigate();
-  // Use shared calendar context instead of local state for events
   const { events: importedEvents, addEvents } = useCalendar();
-  // Use shared goals context instead of local state for goals
   const { goals, addGoal: addGoalToContext } = useGoals();
   const [newGoal, setNewGoal] = useState<string>('');
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
-  // Add goal handler using context
   const addGoal = async () => {
     const trimmedGoal = newGoal.trim();
     if (trimmedGoal) {
@@ -31,14 +28,12 @@ const CalendarOnboarding: React.FC = () => {
         await addGoalToContext(trimmedGoal);
         setNewGoal('');
       } catch (error) {
-        // Error is already handled by the context
         console.error('Failed to add goal:', error);
       }
     }
   };
   const [selectedDate] = useState<Date>(new Date());
   const [isImporting, setIsImporting] = useState<string | null>(null);
-  // Removed unused googleApiLoaded state
 
   const [canvasUrl, setCanvasUrl] = useState<string>('');
   const [icsUrl, setIcsUrl] = useState<string>('');
@@ -58,7 +53,6 @@ const CalendarOnboarding: React.FC = () => {
   }, []);
 
   const parseICSFile = (content: string) => {
-    // Parse ICS file content and return CalendarEvent objects for context
     const events: CalendarEvent[] = [];
     const lines = content.split(/\r?\n/).map(line => line.trim());
     let currentEvent: { [key: string]: string } = {};
@@ -143,7 +137,6 @@ const CalendarOnboarding: React.FC = () => {
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
       const events = parseICSFile(content);
       const eventsWithType = events.map(event => ({ ...event, type: 'canvas' as const }));
-      // Add events to shared context instead of local state
       addEvents(eventsWithType);
       alert(`Successfully imported ${events.length} events from Canvas!`);
     } catch (error) {
@@ -173,7 +166,6 @@ const CalendarOnboarding: React.FC = () => {
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
       const events = parseICSFile(content);
       const eventsWithType = events.map(event => ({ ...event, type: 'imported' as const }));
-      // Add events to shared context instead of local state
       addEvents(eventsWithType);
       alert(`Successfully imported ${events.length} events from calendar!`);
     } catch (error) {
@@ -260,7 +252,6 @@ const CalendarOnboarding: React.FC = () => {
         location: event.location || '',
         type: 'google' as const
       })) || [];
-      // Add Google Calendar events to shared context
       addEvents(events);
     } catch (error: unknown) {
       let errorMessage = 'Unknown error occurred';
@@ -385,7 +376,7 @@ const CalendarOnboarding: React.FC = () => {
                 type="url"
                 value={canvasUrl}
                 onChange={(e) => setCanvasUrl(e.target.value)}
-                placeholder="Enter Canvas calendar URL..."
+                placeholder="Enter Canvas calendar URL (.ics link)..."
                 className="calendar-onboarding-input"
               />
               <button
@@ -405,7 +396,7 @@ const CalendarOnboarding: React.FC = () => {
                       Importing...
                     </>
                   ) : (
-                    <><GraduationCap size={25} /> Import Canvas from URL</>
+                    <><GraduationCap size={25} /> Import Canvas Calendar</>
                   )}
                 </span>
                 {hoveredButton === 'canvas' && !isImporting && (
@@ -460,7 +451,7 @@ const CalendarOnboarding: React.FC = () => {
                   type="url"
                   value={icsUrl}
                   onChange={(e) => setIcsUrl(e.target.value)}
-                  placeholder="Enter calendar URL (.ics file)..."
+                  placeholder="Enter calendar URL (.ics link)..."
                   className="calendar-onboarding-input"
                 />
                 <button
@@ -480,7 +471,7 @@ const CalendarOnboarding: React.FC = () => {
                         Importing...
                       </>
                     ) : (
-                      <> <MailPlus size={25} /> Import Outlook Calendar from URL </>
+                      <> <MailPlus size={25} /> Import calendar from link </>
                     )}
                   </span>
                   {hoveredButton === 'ics' && !isImporting && (
@@ -562,13 +553,21 @@ const CalendarOnboarding: React.FC = () => {
                 <br />
                 <strong>Supported formats:</strong>
                 <br />
-                • .ics files (iCalendar format)
                 <br />
-                • Canvas exported calendars
+                • .ics links
                 <br />
-                • Google Calendar exports
                 <br />
-                • Outlook calendar exports
+                <strong>How to get calendar URLs:</strong>
+                <br />
+                <br />
+                <strong>Canvas:</strong> Dashboard → Calendar → "Calendar Feed" button → Copy URL
+                <br />
+                <br />
+                <strong>Outlook:</strong> outlook.live.com → Calendar → Share → "Publish calendar" → Copy ICS link
+                <br />
+    
+                <br />
+                <strong>Google:</strong> Use the Google Calendar button above for easy connection
               </div>
             )}
 
@@ -583,7 +582,7 @@ const CalendarOnboarding: React.FC = () => {
                 onMouseLeave={() => setHoveredButton(null)}
               >
                 <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Check size={23} strokeWidth={3} /> Done
+                  <Check size={23} strokeWidth={3} /> Continue to AI Calendar
                 </span>
                 {hoveredButton === 'done' && (
                   <div className="calendar-onboarding-btn-shimmer" />
