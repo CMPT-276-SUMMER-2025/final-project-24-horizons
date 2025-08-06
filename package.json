@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint . --fix",
     "preview": "vite preview",
+    "test:features": "node src/tests/import.test.js && node src/tests/gemini.test.js",
     "test:nav": "node src/tests/navigation-check.js",
     "test:health": "node src/tests/health-check.js",
     "test:comprehensive": "node src/tests/comprehensive-health-check.js"

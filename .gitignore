@@ -48,3 +48,5 @@ database/
 !backend/database/
 !backend/database/schema.sql
 !backend/database/database.js
+# Local Netlify folder
+.netlify
