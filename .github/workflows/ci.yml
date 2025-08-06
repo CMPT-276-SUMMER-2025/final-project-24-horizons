@@ -32,12 +32,16 @@ jobs:
     
     - name: Run tests
       run: npm run test:health && npm run test:comprehensive && npm run test:nav
+
+    - name: Run unit tests
+      run: npm run test:features
+    
+    - name: Run integration tests
+      run: npm run test:integration
     
     - name: Build application
       run: npm run build
       env:
-        REACT_APP_GOOGLE_CLIENT_ID: ${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}
-        REACT_APP_GEMINI_API_KEY: ${{ secrets.REACT_APP_GEMINI_API_KEY }}
         REACT_APP_ENVIRONMENT: production
     
     - name: Deploy to Netlify
