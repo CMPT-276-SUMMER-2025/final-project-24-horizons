@@ -23,30 +23,25 @@ class AuthService {
    * @throws Error if authentication fails or server is unreachable
    */
   async loginWithGoogle(googleToken: string): Promise<User> {
-    
-    try {
-      // Send POST request to backend with Google token
-      const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        credentials: 'include', // Include cookies for session management
-        body: JSON.stringify({ token: googleToken }),
-      });
+    // Send POST request to backend with Google token
+    const response = await fetch(`${API_BASE_URL}/api/auth/google`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      credentials: 'include',
+      body: JSON.stringify({ token: googleToken }),
+    });
 
-      // Handle non-successful HTTP responses
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Authentication failed (${response.status})`);
-      }
-
-      // Parse successful response and extract user data
-      const data = await response.json();
-      return data.user;
-    } catch {
-      // Handle error silently
+    // Handle non-successful HTTP responses
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Authentication failed (${response.status})`);
     }
+
+    // Parse successful response and extract user data
+    const data = await response.json();
+    return data.user;
   }
 
   /**
