@@ -8,10 +8,13 @@ import "./LandingPage.css";
 export function LandingPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuth();
+  
+  // State for managing loading spinner during authentication
   const [loading, setLoading] = useState(false);
+  // State for displaying error messages to the user
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect if already logged in
+  // Redirect authenticated users to dashboard automatically
   useEffect(() => {
     if (user) {
       console.log('🔄 User already logged in, redirecting to dashboard...');
@@ -19,41 +22,49 @@ export function LandingPage() {
     }
   }, [user, navigate]);
 
+  // Type definition for Google OAuth credential response
   interface GoogleCredentialResponse {
     credential?: string;
     select_by?: string;
     clientId?: string;
   }
 
+  // Handler for successful Google OAuth authentication
   const handleGoogleSuccess = async (credentialResponse: GoogleCredentialResponse) => {
+    // Validate that we received a credential token
     if (!credentialResponse.credential) {
       console.error('❌ No credential returned from Google login');
       setError('Google login failed. Please try again.');
       return;
     }
 
+    // Show loading state and clear any previous errors
     setLoading(true);
     setError(null);
 
     try {
       console.log('🔐 Processing Google login...');
+      // Send credential to backend authentication service
       const user = await authService.loginWithGoogle(credentialResponse.credential);
       console.log('✅ Login successful:', user);
       
-      // Update auth context
+      // Update global authentication context with user data
       setUser(user);
       
-      // Navigate to dashboard
+      // Redirect to main dashboard page
       navigate('/dashboard', { replace: true });
     } catch (error) {
       console.error('❌ Login failed:', error);
+      // Display user-friendly error message
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       setError(errorMessage);
     } finally {
+      // Always hide loading spinner when done
       setLoading(false);
     }
   };
 
+  // Handler for Google OAuth errors (user cancelled, network issues, etc.)
   const handleGoogleError = () => {
     console.error('❌ Google OAuth error');
     setError('Google login was cancelled or failed. Please try again.');
@@ -62,9 +73,11 @@ export function LandingPage() {
   return (
     <div className="landing-bg">
       <div className="landing-card">
+        {/* Main heading and welcome message */}
         <h1 className="landing-title">Welcome to StudySync</h1>
         <p className="landing-subtitle">Please log in to continue</p>
         
+        {/* Error message display - only shown when error exists */}
         {error && (
           <div style={{
             color: '#ff6b6b',
@@ -80,19 +93,22 @@ export function LandingPage() {
           </div>
         )}
         
+        {/* Login button container with loading overlay */}
         <div className="landing-login-btn">
+          {/* Loading overlay - only shown during authentication */}
           {loading && (
             <div className="landing-loading-overlay">
               <div className="landing-loading-spinner" />
               <span className="landing-loading-text">Signing you in...</span>
             </div>
           )}
+          {/* Google OAuth button - dimmed when loading */}
           <div style={{ opacity: loading ? 0.3 : 1 }}>
             <GoogleLogin
               onSuccess={handleGoogleSuccess}
               onError={handleGoogleError}
-              auto_select={false}
-              useOneTap={false}
+              auto_select={false}  // Disable automatic account selection
+              useOneTap={false}    // Disable one-tap sign-in
             />
           </div>
         </div>
