@@ -5,7 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import { useCalendar } from '../services/calendarContext';
 import { useGoals } from '../services/goalsContext';
 import type { CalendarEvent } from '../services/calendarContext';
-import { GraduationCap, CalendarPlus, MailPlus, Check } from 'lucide-react';
+import { GraduationCap, CalendarPlus, MailPlus, Check, Trash2} from 'lucide-react';
+
 
 // Global type declaration for Google APIs
 declare global {
@@ -31,7 +32,8 @@ const CalendarOnboarding: React.FC = () => {
   const navigate = useNavigate();
   
   // Calendar context for managing imported events
-  const { events: importedEvents, addEvents } = useCalendar();
+  const { events: importedEvents, addEvents, clearEvents } = useCalendar();
+  
   
   // Goals context for managing user goals
   const { goals, addGoal: addGoalToContext } = useGoals();
@@ -80,6 +82,18 @@ const CalendarOnboarding: React.FC = () => {
     };
     loadGoogleAPI();
   }, []);
+  
+  /**
+   * Reset calendar state and clear all imported events
+   * Also resets input fields for Canvas and ICS URLs
+   */
+
+  const resetCalendar = () => {
+  clearEvents();
+  setCanvasUrl('');
+  setIcsUrl('');
+  alert('Calendar cleared! All imported events and input fields have been reset.');
+  };
 
   /**
    * Parse ICS (iCalendar) file content into CalendarEvent objects
@@ -670,7 +684,7 @@ const CalendarOnboarding: React.FC = () => {
                 <div className="calendar-onboarding-calendar-info-legend">
                   <span className="calendar-onboarding-calendar-info-legend-canvas">● Canvas</span>
                   <span className="calendar-onboarding-calendar-info-legend-google">● Google</span>
-                  <span className="calendar-onboarding-calendar-info-legend-outlook">● Outlook</span>
+                  <span className="calendar-onboarding-calendar-info-legend-outlook">● Others</span>
                 </div>
               </div>
             )}
@@ -708,8 +722,18 @@ const CalendarOnboarding: React.FC = () => {
               </div>
             )}
 
-            {/* Continue button */}
+            {/* Continue button and clear button */}
             <div className="calendar-onboarding-done-btn-group">
+              <button
+                onClick={resetCalendar}
+                className="calendar-onboarding-btn calendar-onboarding-btn--reset"
+                disabled={importedEvents.length === 0}
+              >
+                <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Trash2 size={20} /> Clear Calendar
+                </span>
+              </button>
+              
               <button
                 onClick={() => navigate('/calendar-ai')}
                 className={
