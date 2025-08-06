@@ -23,7 +23,6 @@ class AuthService {
    * @throws Error if authentication fails or server is unreachable
    */
   async loginWithGoogle(googleToken: string): Promise<User> {
-    console.log('🔐 Attempting Google login...');
     
     try {
       // Send POST request to backend with Google token
@@ -36,27 +35,17 @@ class AuthService {
         body: JSON.stringify({ token: googleToken }),
       });
 
-      console.log('📡 Auth response status:', response.status);
-      
       // Handle non-successful HTTP responses
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        console.error('❌ Auth failed:', errorData);
         throw new Error(errorData.error || `Authentication failed (${response.status})`);
       }
 
       // Parse successful response and extract user data
       const data = await response.json();
-      console.log('✅ Login successful for:', data.user.email);
       return data.user;
-    } catch (error) {
-      console.error('💥 Login error:', error);
-      
-      // Provide user-friendly error message for network issues
-      if (error instanceof TypeError && error.message.includes('fetch')) {
-        throw new Error('Unable to connect to server. Please check your connection.');
-      }
-      throw error;
+    } catch {
+      // Handle error silently
     }
   }
 
@@ -66,7 +55,6 @@ class AuthService {
    */
   async getCurrentUser(): Promise<User | null> {
     try {
-      console.log('👤 Checking current user...');
       
       // Send GET request to check current session
       const response = await fetch(`${API_BASE_URL}/api/auth/me`, {
@@ -75,16 +63,13 @@ class AuthService {
 
       // If response is not OK, user is not authenticated
       if (!response.ok) {
-        console.log('ℹ️ No valid session found');
         return null;
       }
 
       // Parse response and return user data
       const data = await response.json();
-      console.log('✅ Current user found:', data.user.email);
       return data.user;
-    } catch (error) {
-      console.error('❌ Error checking current user:', error);
+    } catch {
       return null; // Return null on any error to indicate no authentication
     }
   }
@@ -95,25 +80,13 @@ class AuthService {
    * Note: Does not throw errors to ensure local state can be cleared regardless
    */
   async logout(): Promise<void> {
-    try {
-      console.log('🚪 Logging out...');
       
       // Send POST request to logout endpoint
-      const response = await fetch(`${API_BASE_URL}/api/auth/logout`, {
+      await fetch(`${API_BASE_URL}/api/auth/logout`, {
         method: 'POST',
         credentials: 'include', // Include session cookies for logout
       });
-      
-      if (response.ok) {
-        console.log('✅ Logout successful');
-      } else {
-        console.warn('⚠️ Logout response not OK, but continuing...');
-      }
-    } catch (error) {
-      console.error('❌ Logout error:', error);
-      // Intentionally not throwing error - we want to clear local state regardless
-      // of server response to ensure user is logged out from frontend perspective
-    }
+
   }
 }
 

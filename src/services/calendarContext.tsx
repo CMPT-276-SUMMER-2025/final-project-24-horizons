@@ -55,11 +55,10 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
         }));
         // Update the events state with loaded data
         setEvents(eventsWithDates);
-        console.log(`📅 Loaded ${eventsWithDates.length} saved calendar events`);
+
       }
-    } catch (error) {
+    } catch {
       // Handle any errors during loading (e.g., malformed JSON)
-      console.error('Error loading saved calendar events:', error);
       setError('Failed to load saved calendar events');
     }
   }, []); // Empty dependency array means this runs once on mount
@@ -73,10 +72,8 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
     try {
       // Serialize events array to JSON string and save to localStorage
       localStorage.setItem('imported_calendar_events', JSON.stringify(events));
-      console.log(`💾 Saved ${events.length} calendar events to localStorage`);
     } catch (error) {
       // Handle any errors during saving (e.g., localStorage quota exceeded)
-      console.error('Error saving calendar events:', error);
       setError('Failed to save calendar events');
     }
   }, [events]); // Re-run whenever events array changes

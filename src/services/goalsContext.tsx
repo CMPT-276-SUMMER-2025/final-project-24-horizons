@@ -49,14 +49,12 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
       const serverGoals = await fetchGoals();
       setGoals(serverGoals);
     } catch (err: unknown) {
-      console.error('Failed to load goals:', err);
       
       // Handle different types of errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       
       // Check if it's an authentication-related error
       if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
-        console.log('User not authenticated, using empty goals');
         setGoals([]);
         setError('Not logged in');
       } else {
@@ -99,7 +97,6 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
       const updatedGoals = await addGoalToServer(trimmedGoal);
       setGoals(updatedGoals);
     } catch (err: unknown) {
-      console.error('Failed to add goal:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to add goal';
       setError(errorMessage);
       throw err; // Re-throw so calling component can handle the error
@@ -129,7 +126,6 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
       const updatedGoals = await removeGoalFromServer(index);
       setGoals(updatedGoals);
     } catch (err: unknown) {
-      console.error('Failed to remove goal:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove goal';
       setError(errorMessage);
     } finally {
@@ -153,7 +149,6 @@ export const GoalsProvider: React.FC<GoalsProviderProps> = ({ children }) => {
       const updatedGoals = await updateGoalsOnServer([]);
       setGoals(updatedGoals);
     } catch (err: unknown) {
-      console.error('Failed to clear goals:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to clear goals';
       setError(errorMessage);
     } finally {

@@ -67,8 +67,8 @@ const FlashCardsTab: React.FC = () => {
           await addFlashcard(newFlashcardFront.trim() || 'Untitled Front', newFlashcardBack.trim());
         }
         closeModal();
-      } catch (error) {
-        console.error('Failed to save flashcard:', error);
+      } catch {
+        // Handle error silently
       }
     }
   };
@@ -81,8 +81,7 @@ const FlashCardsTab: React.FC = () => {
       setTimeout(async () => {
         try {
           await removeFlashcard(id);
-        } catch (error) {
-          console.error('Failed to delete flashcard:', error);
+        } catch {
           flashcardElement.classList.remove('deleting');
         }
       }, 400);
@@ -227,9 +226,8 @@ const NotesTab: React.FC = () => {
           await addNote(newNoteTitle.trim() || 'Untitled Note', newNoteContent.trim());
         }
         closeModal();
-      } catch (error) {
-        console.error('Failed to save note:', error);
-        // Error is already handled by context
+      } catch {
+        // Handle error silently
       }
     }
   };
@@ -243,9 +241,8 @@ const NotesTab: React.FC = () => {
       setTimeout(async () => {
         try {
           await removeNote(id);
-        } catch (error) {
-          console.error('Failed to delete note:', error);
-          // Remove the deleting class if deletion failed
+        } catch {
+          // Handle error silently
           noteElement.classList.remove('deleting');
         }
       }, 400); // Match the animation duration

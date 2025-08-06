@@ -58,7 +58,6 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
       const serverNotes = await fetchNotes();
       setNotes(serverNotes);
     } catch (err: unknown) {
-      console.error('Failed to load notes:', err);
       
       // Handle different types of errors appropriately
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -96,7 +95,6 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
       // Add the new note to local state
       setNotes(prevNotes => [...prevNotes, newNote]);
     } catch (err: unknown) {
-      console.error('Failed to add note:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to add note';
       setError(errorMessage);
       throw err; // Re-throw so calling component can handle the error
@@ -125,7 +123,6 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
       // Remove note from local state by filtering out the deleted note
       setNotes(prevNotes => prevNotes.filter(note => note.id !== id));
     } catch (err: unknown) {
-      console.error('Failed to remove note:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove note';
       setError(errorMessage);
     } finally {
@@ -159,7 +156,6 @@ export const NotesProvider: React.FC<NotesProviderProps> = ({ children }) => {
         )
       );
     } catch (err: unknown) {
-      console.error('Failed to update note:', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update note';
       setError(errorMessage);
       throw err; // Re-throw so calling component can handle the error

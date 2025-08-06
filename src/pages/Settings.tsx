@@ -18,9 +18,8 @@ function Settings() {
     try {
       await logout();
       // Navigation will be handled by the auth context
-    } catch (error) {
-      console.error('Logout error:', error);
-      alert('Failed to logout. Please try again.');
+    } catch {
+      // Handle error silently
     }
   };
 

@@ -30,9 +30,8 @@ const CalendarOnboarding: React.FC = () => {
       try {
         await addGoalToContext(trimmedGoal);
         setNewGoal('');
-      } catch (error) {
-        // Error is already handled by the context
-        console.error('Failed to add goal:', error);
+      } catch {
+        // Handle error silently
       }
     }
   };

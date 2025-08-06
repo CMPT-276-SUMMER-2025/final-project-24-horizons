@@ -63,9 +63,8 @@ export const fetchNotes = async (): Promise<Note[]> => {
     // Parse and return the notes data
     const data: Note[] = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error fetching notes:', error);
-    throw error;
+  } catch {
+    throw new Error('Error fetching notes');
   }
 };
 
@@ -95,9 +94,8 @@ export const addNoteToServer = async (title: string, content: string): Promise<N
     // Parse and return the created note
     const data: Note = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error adding note:', error);
-    throw error;
+  } catch {
+    throw new Error('Error adding note');
   }
 };
 
@@ -123,9 +121,8 @@ export const removeNoteFromServer = async (id: number): Promise<void> => {
       throw new Error(errorData.error || `Failed to remove note: ${response.status}`);
     }
     // Note: No return data needed for successful deletion
-  } catch (error) {
-    console.error('Error removing note:', error);
-    throw error;
+  } catch {
+    throw new Error('Error removing note');
   }
 };
 
@@ -157,8 +154,7 @@ export const updateNoteOnServer = async (id: number, title: string, content: str
     // Parse and return the updated note
     const data: Note = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error updating note:', error);
-    throw error;
+  } catch {
+    throw new Error('Error updating note');
   }
 };

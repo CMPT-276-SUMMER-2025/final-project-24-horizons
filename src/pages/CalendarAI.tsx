@@ -100,7 +100,6 @@ const CalendarAI = () => {
       setChatMessages(prev => [...prev, aiMessage]);
 
     } catch (error: unknown) {
-        console.error('Error:', error);
         
         let errorMessage = 'Unknown error occurred';
         if (error instanceof Error) {
@@ -129,18 +128,16 @@ const CalendarAI = () => {
         userId,
         createdAt: Timestamp.now()
       });
-      console.log('Event added to Firebase!');
-    } catch (error) {
-      console.error('Error adding event:', error);
+    } catch {
+      // Handle error silently
     }
   };
 
   const deleteEvent = async (eventId: string) => {
     try {
       await deleteDoc(doc(db, 'events', eventId));
-      console.log('Event deleted from Firebase!');
-    } catch (error) {
-      console.error('Error deleting event:', error);
+    } catch {
+      // Handle error silently
     }
   };
 
@@ -156,9 +153,9 @@ const CalendarAI = () => {
       }
 
       await updateDoc(eventRef, updateData);
-      console.log('Event updated in Firebase!');
-    } catch (error) {
-      console.error('Error updating event:', error);
+
+    } catch {
+      // Handle error silently
     }
   };
 
@@ -269,7 +266,7 @@ const CalendarAI = () => {
         const cleanJson = response.replace(/```json\n?|\n?```/g, '').trim();
         parsedData = JSON.parse(cleanJson);
       } catch {
-        console.log('Failed to parse Gemini response:', response);
+        // Handle error silently
         return false;
       }
       if (parsedData.action === 'none') {
@@ -392,8 +389,8 @@ const CalendarAI = () => {
           return false;
       }
 
-    } catch (error) {
-      console.error('Error parsing calendar action:', error);
+    } catch {
+      // Handle error silently
       return false;
     }
   };

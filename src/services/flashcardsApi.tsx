@@ -69,9 +69,8 @@ export const fetchFlashcards = async (): Promise<Flashcard[]> => {
     // Parse and return flashcards data
     const data: Flashcard[] = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error fetching flashcards:', error);
-    throw error; // Re-throw for component handling
+  } catch {
+    throw new Error('Error fetching flashcards');
   }
 };
 
@@ -101,9 +100,8 @@ export const addFlashcardToServer = async (front: string, back: string): Promise
     // Return the newly created flashcard with server-generated fields
     const data: Flashcard = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error adding flashcard:', error);
-    throw error; // Re-throw for component handling
+  } catch {
+    throw new Error('Error adding flashcard');
   }
 };
 
@@ -128,9 +126,8 @@ export const removeFlashcardFromServer = async (id: number): Promise<void> => {
       throw new Error(`Failed to delete flashcard: ${response.status} - ${errorData.error || 'Unknown error'}`);
     }
     // No response body expected for successful deletion
-  } catch (error) {
-    console.error('Error deleting flashcard:', error);
-    throw error; // Re-throw for component handling
+  } catch {
+    throw new Error('Error deleting flashcard');
   }
 };
 
@@ -161,8 +158,7 @@ export const updateFlashcardOnServer = async (id: number, front: string, back: s
     // Return the updated flashcard with new timestamps
     const data: Flashcard = await response.json();
     return data;
-  } catch (error) {
-    console.error('Error updating flashcard:', error);
-    throw error; // Re-throw for component handling
+  } catch {
+    throw new Error('Error updating flashcard');
   }
 };

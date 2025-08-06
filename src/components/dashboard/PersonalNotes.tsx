@@ -20,8 +20,7 @@ function PersonalNotes() {
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         );
         setNotes(sortedNotes);
-      } catch (error) {
-        console.error('Failed to fetch notes:', error);
+      } catch {
         // Set empty array on error so component still renders
         setNotes([]);
       } finally {

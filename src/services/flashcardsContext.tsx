@@ -58,7 +58,6 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
       const serverFlashcards = await fetchFlashcards();
       setFlashcards(serverFlashcards);
     } catch (err: unknown) {
-      console.error('Failed to load flashcards:', err);
       
       // Handle different types of errors, especially authentication errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -94,8 +93,6 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
       // Add new flashcard to the beginning of the local array
       setFlashcards(prevFlashcards => [newFlashcard, ...prevFlashcards]);
     } catch (err: unknown) {
-      console.error('Failed to add flashcard:', err);
-      
       // Handle authentication and other errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       if (errorMessage.includes('401') || errorMessage.includes('No token') || errorMessage.includes('Invalid token')) {
@@ -128,7 +125,6 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
       // Remove flashcard from local state by filtering out the deleted ID
       setFlashcards(prevFlashcards => prevFlashcards.filter(flashcard => flashcard.id !== id));
     } catch (err: unknown) {
-      console.error('Failed to delete flashcard:', err);
       
       // Handle authentication and other errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
@@ -167,7 +163,6 @@ export const FlashcardsProvider: React.FC<FlashcardsProviderProps> = ({ children
         )
       );
     } catch (err: unknown) {
-      console.error('Failed to update flashcard:', err);
       
       // Handle authentication and other errors
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';

@@ -37,9 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Attempt to get the current user from the auth service
         const currentUser = await authService.getCurrentUser();
         setUser(currentUser);
-      } catch (error) {
-        // Log any errors during authentication check
-        console.error('Auth check failed:', error);
+      } catch {
+        // Handle error silently
       } finally {
         // Always set loading to false when check is complete
         setLoading(false);
@@ -59,9 +58,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authService.logout();
       // Clear the user state
       setUser(null);
-    } catch (error) {
-      // Log any errors during logout
-      console.error('Logout failed:', error);
+    } catch {
+      // Handle error silently
     }
   };
 

@@ -17,7 +17,6 @@ export function LandingPage() {
   // Redirect authenticated users to dashboard automatically
   useEffect(() => {
     if (user) {
-      console.log('🔄 User already logged in, redirecting to dashboard...');
       navigate('/dashboard', { replace: true });
     }
   }, [user, navigate]);
@@ -33,7 +32,6 @@ export function LandingPage() {
   const handleGoogleSuccess = async (credentialResponse: GoogleCredentialResponse) => {
     // Validate that we received a credential token
     if (!credentialResponse.credential) {
-      console.error('❌ No credential returned from Google login');
       setError('Google login failed. Please try again.');
       return;
     }
@@ -43,18 +41,14 @@ export function LandingPage() {
     setError(null);
 
     try {
-      console.log('🔐 Processing Google login...');
       // Send credential to backend authentication service
       const user = await authService.loginWithGoogle(credentialResponse.credential);
-      console.log('✅ Login successful:', user);
-      
       // Update global authentication context with user data
       setUser(user);
       
       // Redirect to main dashboard page
       navigate('/dashboard', { replace: true });
     } catch (error) {
-      console.error('❌ Login failed:', error);
       // Display user-friendly error message
       const errorMessage = error instanceof Error ? error.message : 'Login failed. Please try again.';
       setError(errorMessage);
@@ -66,7 +60,6 @@ export function LandingPage() {
 
   // Handler for Google OAuth errors (user cancelled, network issues, etc.)
   const handleGoogleError = () => {
-    console.error('❌ Google OAuth error');
     setError('Google login was cancelled or failed. Please try again.');
   };
 

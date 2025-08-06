@@ -58,9 +58,8 @@ export const fetchGoals = async (): Promise<string[]> => {
     // Parse response and return goals array
     const data: GoalsResponse = await response.json();
     return data.goals;
-  } catch (error) {
-    console.error('Error fetching goals:', error);
-    throw error;
+  } catch {
+    throw new Error('Error fetching goals');
   }
 };
 
@@ -90,9 +89,8 @@ export const addGoalToServer = async (goal: string): Promise<string[]> => {
     // Parse response and return updated goals array
     const data: GoalsResponse = await response.json();
     return data.goals;
-  } catch (error) {
-    console.error('Error adding goal:', error);
-    throw error;
+  } catch {
+    throw new Error('Error adding goal');
   }
 };
 
@@ -121,9 +119,8 @@ export const removeGoalFromServer = async (index: number): Promise<string[]> => 
     // Parse response and return updated goals array
     const data: GoalsResponse = await response.json();
     return data.goals;
-  } catch (error) {
-    console.error('Error removing goal:', error);
-    throw error;
+  } catch {
+    throw new Error('Error removing goal');
   }
 };
 
@@ -153,8 +150,7 @@ export const updateGoalsOnServer = async (goals: string[]): Promise<string[]> =>
     // Parse response and return updated goals array
     const data: GoalsResponse = await response.json();
     return data.goals;
-  } catch (error) {
-    console.error('Error updating goals:', error);
-    throw error;
+  } catch {
+    throw new Error('Error updating goals');
   }
 };
