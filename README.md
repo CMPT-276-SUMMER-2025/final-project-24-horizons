@@ -55,7 +55,7 @@ A full-stack web application for student productivity and note-taking, built wit
    **Backend Environment (`backend/.env`):**
    ```env
    # Server Configuration
-   PORT=3000
+   PORT=3009
    NODE_ENV=development
    
    # Database Configuration
