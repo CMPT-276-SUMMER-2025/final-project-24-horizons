@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 // Shared interface for calendar events
 export interface CalendarEvent {
@@ -84,10 +86,33 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
     setEvents(prev => [...prev, event]);
   };
 
-  // Function to add multiple events at once (useful for bulk imports)
-  const addEvents = (newEvents: CalendarEvent[]) => {
-    // Spread existing events and new events into a single array
-    setEvents(prev => [...prev, ...newEvents]);
+  // Adds multiple events to both Firebase and local state (useful for bulk imports from external sources)
+  const addEvents = async (newEvents: CalendarEvent[]) => {
+    const userId = 'demo-user'; 
+    
+    try {
+      // Save each event to Firebase
+      for (const event of newEvents) {
+        await addDoc(collection(db, 'events'), {
+          title: event.title,
+          date: Timestamp.fromDate(event.date),
+          time: event.time,
+          description: event.description,
+          location: event.location,
+          type: event.type,
+          category: event.type, 
+          userId,
+          createdAt: Timestamp.now()
+        });
+      }
+      
+      // Also update local state
+      setEvents(prev => [...prev, ...newEvents]);
+    } catch (error) {
+      console.error('Error saving events to Firebase:', error);
+      setError('Failed to save events');
+      throw error;
+    }
   };
 
   // Function to remove a specific event by its ID
@@ -98,8 +123,8 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
 
   // Function to clear all events from the calendar
   const clearEvents = () => {
-    // Reset events to empty array
-    setEvents([]);
+  setEvents([]);
+  localStorage.removeItem('imported_calendar_events');
   };
 
   // Provide the context value to all child components
