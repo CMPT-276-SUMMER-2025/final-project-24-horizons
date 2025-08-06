@@ -72,7 +72,7 @@ export const CalendarProvider: React.FC<CalendarProviderProps> = ({ children }) 
     try {
       // Serialize events array to JSON string and save to localStorage
       localStorage.setItem('imported_calendar_events', JSON.stringify(events));
-    } catch (error) {
+    } catch {
       // Handle any errors during saving (e.g., localStorage quota exceeded)
       setError('Failed to save calendar events');
     }
