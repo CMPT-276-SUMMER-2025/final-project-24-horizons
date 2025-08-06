@@ -7,6 +7,7 @@ import { useGoals } from '../services/goalsContext';
 import type { CalendarEvent } from '../services/calendarContext';
 import { GraduationCap, CalendarPlus, MailPlus, Check } from 'lucide-react';
 
+// Global type declaration for Google APIs
 declare global {
   interface Window {
     gapi: unknown;
@@ -14,16 +15,39 @@ declare global {
   }
 }
 
+/**
+ * CalendarOnboarding Component
+ * 
+ * This component handles the initial setup of user calendars and goals.
+ * It provides functionality to:
+ * - Import Canvas academic calendars via ICS URLs
+ * - Connect Google Calendar through OAuth
+ * - Import other calendar services via ICS URLs
+ * - Add and manage personal goals
+ * - Preview imported events in a calendar view
+ */
 const CalendarOnboarding: React.FC = () => {
+  // Navigation hook for routing
   const navigate = useNavigate();
-  // Use shared calendar context instead of local state for events
+  
+  // Calendar context for managing imported events
   const { events: importedEvents, addEvents } = useCalendar();
-  // Use shared goals context instead of local state for goals
+  
+  // Goals context for managing user goals
   const { goals, addGoal: addGoalToContext } = useGoals();
-  const [newGoal, setNewGoal] = useState<string>('');
-  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
 
-  // Add goal handler using context
+  // Component state
+  const [newGoal, setNewGoal] = useState<string>(''); // Current goal being typed
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null); // Button hover state for animations
+  const [selectedDate] = useState<Date>(new Date()); // Current date for calendar display
+  const [isImporting, setIsImporting] = useState<string | null>(null); // Track which import is in progress
+  const [canvasUrl, setCanvasUrl] = useState<string>(''); // Canvas calendar URL input
+  const [icsUrl, setIcsUrl] = useState<string>(''); // Generic ICS URL input
+
+  /**
+   * Add a new goal to the user's goal list
+   * Trims whitespace and adds to context if valid
+   */
   const addGoal = async () => {
     const trimmedGoal = newGoal.trim();
     if (trimmedGoal) {
@@ -31,22 +55,23 @@ const CalendarOnboarding: React.FC = () => {
         await addGoalToContext(trimmedGoal);
         setNewGoal('');
       } catch {
-        // Handle error silently
+        // Handle error silently - could be improved with user feedback
       }
     }
   };
-  const [selectedDate] = useState<Date>(new Date());
-  const [isImporting, setIsImporting] = useState<string | null>(null);
-  // Removed unused googleApiLoaded state
 
-  const [canvasUrl, setCanvasUrl] = useState<string>('');
-  const [icsUrl, setIcsUrl] = useState<string>('');
-
+  /**
+   * Load Google APIs script dynamically
+   * Prevents duplicate script loading
+   */
   React.useEffect(() => {
     const loadGoogleAPI = () => {
+      // Check if Google API script is already loaded
       if (document.querySelector('script[src*="apis.google.com"]')) {
         return;
       }
+      
+      // Create and load Google API script
       const script = document.createElement('script');
       script.src = 'https://apis.google.com/js/api.js';
       script.onload = () => {};
@@ -56,18 +81,29 @@ const CalendarOnboarding: React.FC = () => {
     loadGoogleAPI();
   }, []);
 
+  /**
+   * Parse ICS (iCalendar) file content into CalendarEvent objects
+   * Handles various ICS formats and extracts event data
+   * 
+   * @param content - Raw ICS file content string
+   * @returns Array of CalendarEvent objects
+   */
   const parseICSFile = (content: string) => {
-    // Parse ICS file content and return CalendarEvent objects for context
     const events: CalendarEvent[] = [];
     const lines = content.split(/\r?\n/).map(line => line.trim());
     let currentEvent: { [key: string]: string } = {};
     let inEvent = false;
+
+    // Parse ICS line by line
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
+      
       if (line === 'BEGIN:VEVENT') {
+        // Start of new event
         inEvent = true;
         currentEvent = {};
       } else if (line === 'END:VEVENT' && inEvent) {
+        // End of event - create CalendarEvent if valid
         if (currentEvent.summary || currentEvent.dtstart) {
           events.push({
             id: Math.random().toString(36).substr(2, 9),
@@ -81,9 +117,12 @@ const CalendarOnboarding: React.FC = () => {
         }
         inEvent = false;
       } else if (inEvent && line.includes(':')) {
+        // Parse event properties
         const colonIndex = line.indexOf(':');
         const key = line.substring(0, colonIndex).toUpperCase();
         const value = line.substring(colonIndex + 1);
+        
+        // Extract relevant event data
         if (key.startsWith('SUMMARY')) {
           currentEvent.summary = value;
         } else if (key.startsWith('DTSTART')) {
@@ -98,14 +137,22 @@ const CalendarOnboarding: React.FC = () => {
     return events;
   };
 
+  /**
+   * Parse ICS date format (YYYYMMDD or YYYYMMDDTHHMMSSZ) into JavaScript Date
+   * 
+   * @param dateStr - ICS formatted date string
+   * @returns JavaScript Date object
+   */
   const parseICSDate = (dateStr: string): Date => {
     if (dateStr.includes('T')) {
+      // DateTime format
       const cleanDate = dateStr.replace(/[TZ]/g, '');
       const year = parseInt(cleanDate.substring(0, 4));
-      const month = parseInt(cleanDate.substring(4, 6)) - 1;
+      const month = parseInt(cleanDate.substring(4, 6)) - 1; // Month is 0-indexed
       const day = parseInt(cleanDate.substring(6, 8));
       return new Date(year, month, day);
     } else {
+      // Date only format
       const year = parseInt(dateStr.substring(0, 4));
       const month = parseInt(dateStr.substring(4, 6)) - 1;
       const day = parseInt(dateStr.substring(6, 8));
@@ -113,6 +160,12 @@ const CalendarOnboarding: React.FC = () => {
     }
   };
 
+  /**
+   * Extract time from ICS datetime format
+   * 
+   * @param dateStr - ICS formatted datetime string
+   * @returns Time string in HH:MM format or "All Day"
+   */
   const parseICSTime = (dateStr: string): string => {
     if (dateStr.includes('T')) {
       const timePart = dateStr.split('T')[1].replace('Z', '');
@@ -123,27 +176,40 @@ const CalendarOnboarding: React.FC = () => {
     return 'All Day';
   };
 
+  /**
+   * Import Canvas calendar from ICS URL
+   * Uses proxy service to bypass CORS restrictions
+   */
   const handleCanvasImport = async () => {
     if (!canvasUrl.trim()) {
       alert('Please enter a Canvas calendar URL');
       return;
     }
+
     setIsImporting('canvas');
     try {
+      // Use CORS proxy service
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(canvasUrl)}`;
       const response = await fetch(proxyUrl);
+      
       if (!response.ok) throw new Error(`Failed to fetch calendar: ${response.status}`);
+      
       const data = await response.json();
       let content = data.contents;
+
+      // Handle base64 encoded content
       if (content.startsWith('data:text/calendar') && content.includes('base64,')) {
         const base64Data = content.split('base64,')[1];
         content = atob(base64Data);
       }
+
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
+
+      // Parse and add events with Canvas type
       const events = parseICSFile(content);
       const eventsWithType = events.map(event => ({ ...event, type: 'canvas' as const }));
-      // Add events to shared context instead of local state
       addEvents(eventsWithType);
+      
       alert(`Successfully imported ${events.length} events from Canvas!`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -153,27 +219,39 @@ const CalendarOnboarding: React.FC = () => {
     }
   };
 
+  /**
+   * Import calendar from generic ICS URL
+   * Similar to Canvas import but with different event type
+   */
   const handleICSImport = async () => {
     if (!icsUrl.trim()) {
       alert('Please enter a calendar URL');
       return;
     }
+
     setIsImporting('ics');
     try {
       const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(icsUrl)}`;
       const response = await fetch(proxyUrl);
+      
       if (!response.ok) throw new Error(`Failed to fetch calendar: ${response.status}`);
+      
       const data = await response.json();
       let content = data.contents;
+
+      // Handle base64 encoded content
       if (content.startsWith('data:text/calendar') && content.includes('base64,')) {
         const base64Data = content.split('base64,')[1];
         content = atob(base64Data);
       }
+
       if (!content || content.trim() === '') throw new Error('Calendar file appears to be empty');
+
+      // Parse and add events with imported type
       const events = parseICSFile(content);
       const eventsWithType = events.map(event => ({ ...event, type: 'imported' as const }));
-      // Add events to shared context instead of local state
       addEvents(eventsWithType);
+      
       alert(`Successfully imported ${events.length} events from calendar!`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
@@ -183,6 +261,7 @@ const CalendarOnboarding: React.FC = () => {
     }
   };
 
+  // Google Calendar API configuration
   const GOOGLE_CONFIG = {
     CLIENT_ID: import.meta.env.VITE_GOOGLE_CLIENT_ID || '761584657777-un14sj0ss535d098qiaui58vlpbif4vi.apps.googleusercontent.com',
     API_KEY: import.meta.env.VITE_GOOGLE_API_KEY || 'AIzaSyC5PuMibhrYEJkxFS2N-BpfwqEH14KvDpw',
@@ -190,14 +269,23 @@ const CalendarOnboarding: React.FC = () => {
     SCOPES: 'https://www.googleapis.com/auth/calendar.readonly'
   };
 
+  /**
+   * Check if Google API credentials are properly configured
+   * Used to show setup warnings in the UI
+   */
   const isGoogleConfigured = () => {
     return GOOGLE_CONFIG.CLIENT_ID !== 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com' &&
       GOOGLE_CONFIG.API_KEY !== 'YOUR_GOOGLE_API_KEY';
   };
 
+  /**
+   * Import Google Calendar events using OAuth 2.0
+   * Handles authentication flow and API requests
+   */
   const handleGoogleCalendarImport = async () => {
     setIsImporting('google');
     try {
+      // Load Google Identity Services library
       await new Promise((resolve, reject) => {
         if (window.google?.accounts) {
           resolve(null);
@@ -209,6 +297,8 @@ const CalendarOnboarding: React.FC = () => {
         script.onerror = reject;
         document.head.appendChild(script);
       });
+
+      // Get OAuth access token
       const accessToken = await new Promise<string>((resolve, reject) => {
         const tokenClient = window.google.accounts.oauth2.initTokenClient({
           client_id: GOOGLE_CONFIG.CLIENT_ID,
@@ -226,17 +316,23 @@ const CalendarOnboarding: React.FC = () => {
         });
         tokenClient.requestAccessToken({ prompt: 'select_account' });
       });
+
+      // Fetch calendar events from Google Calendar API
       const response = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events?` + new URLSearchParams({
         key: GOOGLE_CONFIG.API_KEY,
-        timeMin: new Date().toISOString(),
+        timeMin: new Date().toISOString(), // Only future events
         maxResults: '50',
         singleEvents: 'true',
         orderBy: 'startTime'
       }), {
         headers: { 'Authorization': `Bearer ${accessToken}` }
       });
+
       if (!response.ok) throw new Error(`Calendar API request failed: ${response.status} ${response.statusText}`);
+
       const data = await response.json();
+
+      // Google Calendar event interface
       interface GoogleCalendarEvent {
         id: string;
         summary?: string;
@@ -248,6 +344,7 @@ const CalendarOnboarding: React.FC = () => {
         location?: string;
       }
 
+      // Transform Google events to our CalendarEvent format
       const events = data.items?.map((event: GoogleCalendarEvent) => ({
         id: event.id,
         title: event.summary || 'No Title',
@@ -259,13 +356,16 @@ const CalendarOnboarding: React.FC = () => {
         location: event.location || '',
         type: 'google' as const
       })) || [];
-      // Add Google Calendar events to shared context
+
       addEvents(events);
     } catch (error: unknown) {
+      // Handle various error types with user-friendly messages
       let errorMessage = 'Unknown error occurred';
       if (error instanceof Error) errorMessage = error.message;
       else if (typeof error === 'string') errorMessage = error;
       else if (error && typeof error === 'object') errorMessage = JSON.stringify(error);
+
+      // Provide specific error messages for common issues
       if (errorMessage.includes('popup_blocked')) {
         alert('Please allow popups for this site to sign in with Google.');
       } else if (errorMessage.includes('access_denied')) {
@@ -282,16 +382,24 @@ const CalendarOnboarding: React.FC = () => {
     }
   };
 
+  /**
+   * Calculate calendar grid layout information
+   * Returns days in month and starting day of week
+   */
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    const startingDayOfWeek = firstDay.getDay(); // 0 = Sunday
     return { daysInMonth, startingDayOfWeek };
   };
 
+  /**
+   * Get all events for a specific day
+   * Used to display events in the calendar grid
+   */
   const getEventsForDate = (day: number) => {
     const targetDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), day);
     return importedEvents.filter(event =>
@@ -299,17 +407,23 @@ const CalendarOnboarding: React.FC = () => {
     );
   };
 
+  /**
+   * Render the calendar grid with events
+   * Creates a monthly view with event indicators
+   */
   const renderCalendar = () => {
     const { daysInMonth, startingDayOfWeek } = getDaysInMonth(selectedDate);
     const days = [];
     const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
+    // Calendar header with month/year
     days.push(
       <div key="header" className="calendar-onboarding-calendar-header">
         {monthNames[selectedDate.getMonth()]} {selectedDate.getFullYear()}
       </div>
     );
 
+    // Day labels (S M T W T F S)
     const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
     dayLabels.forEach((label, i) => {
       days.push(
@@ -319,12 +433,14 @@ const CalendarOnboarding: React.FC = () => {
       );
     });
 
+    // Empty cells before first day of month
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(
         <div key={`empty-${i}`} className="calendar-onboarding-calendar-empty" />
       );
     }
 
+    // Calendar days with events
     for (let day = 1; day <= daysInMonth; day++) {
       const dayEvents = getEventsForDate(day);
       days.push(
@@ -336,6 +452,7 @@ const CalendarOnboarding: React.FC = () => {
           }
         >
           <div className="calendar-onboarding-calendar-day-number">{day}</div>
+          {/* Show up to 2 events per day */}
           {dayEvents.slice(0, 2).map((event) => (
             <div
               key={event.id}
@@ -354,6 +471,7 @@ const CalendarOnboarding: React.FC = () => {
               {event.title}
             </div>
           ))}
+          {/* Show "+X more" if there are additional events */}
           {dayEvents.length > 2 && (
             <div className="calendar-onboarding-calendar-more-events">
               +{dayEvents.length - 2}
@@ -365,17 +483,19 @@ const CalendarOnboarding: React.FC = () => {
     return days;
   };
 
+  // Main component render
   return (
     <>
       <Navbar />
       <div className="calendar-onboarding-root">
         <div className="calendar-onboarding-grid">
-          {/* Left side */}
+          {/* Left side - Import controls and goals */}
           <div className="calendar-onboarding-left">
             <h1 className="calendar-onboarding-title">
               Let's set up your schedule!
             </h1>
 
+            {/* Canvas Calendar Import Section */}
             <div className="calendar-onboarding-section">
               <h3 className="calendar-onboarding-section-title">
                 Import Academic Schedule
@@ -384,7 +504,7 @@ const CalendarOnboarding: React.FC = () => {
                 type="url"
                 value={canvasUrl}
                 onChange={(e) => setCanvasUrl(e.target.value)}
-                placeholder="Enter Canvas calendar URL..."
+                placeholder="Enter Canvas calendar URL (.ics link)..."
                 className="calendar-onboarding-input"
               />
               <button
@@ -404,7 +524,7 @@ const CalendarOnboarding: React.FC = () => {
                       Importing...
                     </>
                   ) : (
-                    <><GraduationCap size={25} /> Import Canvas from URL</>
+                    <><GraduationCap size={25} /> Import Canvas Calendar</>
                   )}
                 </span>
                 {hoveredButton === 'canvas' && !isImporting && (
@@ -413,11 +533,13 @@ const CalendarOnboarding: React.FC = () => {
               </button>
             </div>
 
+            {/* Personal Calendar Import Section */}
             <div className="calendar-onboarding-section">
               <h3 className="calendar-onboarding-section-title">
                 Import Personal Schedule
               </h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Google Calendar Import Button */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <button
                     onClick={handleGoogleCalendarImport}
@@ -455,11 +577,12 @@ const CalendarOnboarding: React.FC = () => {
                   </button>
                 </div>
 
+                {/* Generic ICS Import */}
                 <input
                   type="url"
                   value={icsUrl}
                   onChange={(e) => setIcsUrl(e.target.value)}
-                  placeholder="Enter calendar URL (.ics file)..."
+                  placeholder="Enter calendar URL (.ics link)..."
                   className="calendar-onboarding-input"
                 />
                 <button
@@ -479,7 +602,7 @@ const CalendarOnboarding: React.FC = () => {
                         Importing...
                       </>
                     ) : (
-                      <> <MailPlus size={25} /> Import Outlook Calendar from URL </>
+                      <> <MailPlus size={25} /> Import calendar from link </>
                     )}
                   </span>
                   {hoveredButton === 'ics' && !isImporting && (
@@ -489,10 +612,12 @@ const CalendarOnboarding: React.FC = () => {
               </div>
             </div>
 
+            {/* Goals Management Section */}
             <div>
               <h3 className="calendar-onboarding-section-title">
                 Goals
               </h3>
+              {/* Display existing goals */}
               <div className="calendar-onboarding-goal-list">
                 {goals.map((goal, index) => (
                   <div key={index} className="calendar-onboarding-goal-item">
@@ -500,6 +625,7 @@ const CalendarOnboarding: React.FC = () => {
                   </div>
                 ))}
               </div>
+              {/* Add new goal input */}
               <div className="calendar-onboarding-goal-input-group">
                 <input
                   type="text"
@@ -529,12 +655,13 @@ const CalendarOnboarding: React.FC = () => {
             </div>
           </div>
 
-          {/* Right side */}
+          {/* Right side - Calendar Preview */}
           <div className="calendar-onboarding-right">
             <h3 className="calendar-onboarding-calendar-title">
               Calendar Preview
             </h3>
 
+            {/* Event count and legend */}
             {importedEvents.length > 0 && (
               <div className="calendar-onboarding-calendar-info">
                 <div className="calendar-onboarding-calendar-info-title">
@@ -548,12 +675,14 @@ const CalendarOnboarding: React.FC = () => {
               </div>
             )}
 
+            {/* Calendar grid */}
             <div className="calendar-onboarding-calendar-preview">
               <div className="calendar-onboarding-calendar-grid">
                 {renderCalendar()}
               </div>
             </div>
 
+            {/* Empty state message with instructions */}
             {importedEvents.length === 0 && (
               <div className="calendar-onboarding-calendar-empty-message">
                 📅 Import your calendars to see events appear here!
@@ -561,16 +690,25 @@ const CalendarOnboarding: React.FC = () => {
                 <br />
                 <strong>Supported formats:</strong>
                 <br />
-                • .ics files (iCalendar format)
                 <br />
-                • Canvas exported calendars
+                • .ics links
                 <br />
-                • Google Calendar exports
                 <br />
-                • Outlook calendar exports
+                <strong>How to get calendar URLs:</strong>
+                <br />
+                <br />
+                <strong>Canvas:</strong> Dashboard → Calendar → "Calendar Feed" button → Copy URL
+                <br />
+                <br />
+                <strong>Outlook:</strong> outlook.live.com → Calendar → Share → "Publish calendar" → Copy ICS link
+                <br />
+    
+                <br />
+                <strong>Google:</strong> Use the Google Calendar button above for easy connection
               </div>
             )}
 
+            {/* Continue button */}
             <div className="calendar-onboarding-done-btn-group">
               <button
                 onClick={() => navigate('/calendar-ai')}
@@ -582,7 +720,7 @@ const CalendarOnboarding: React.FC = () => {
                 onMouseLeave={() => setHoveredButton(null)}
               >
                 <span style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Check size={23} strokeWidth={3} /> Done
+                  <Check size={23} strokeWidth={3} /> Continue to AI Calendar
                 </span>
                 {hoveredButton === 'done' && (
                   <div className="calendar-onboarding-btn-shimmer" />

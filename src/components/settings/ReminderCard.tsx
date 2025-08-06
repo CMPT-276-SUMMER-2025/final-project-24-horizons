@@ -11,7 +11,7 @@ const ReminderCard = ({ onStart }: ReminderCardProps) => {
     startTimer(sessionDuration); // start with selected duration
     onStart(); // hide the reminder card 
   };
-/* removed this line: <button className="snooze-button">Snooze</button> */
+  /* removed this line: <button className="snooze-button">Snooze</button> */
   return (
     <section className="settings-section">
       <h2>Reminder</h2>

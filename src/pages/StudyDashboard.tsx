@@ -215,58 +215,90 @@ const NotesTab: React.FC = () => {
   // Use notes context
   const { notes, addNote, removeNote, updateNote, isLoading } = useNotes();
 
+  /**
+   * Handles adding a new note or updating an existing note
+   * Validates that either title or content is provided before saving
+   */
   const handleAddNote = async () => {
+    // Only proceed if either title or content has been entered
     if (newNoteTitle.trim() || newNoteContent.trim()) {
       try {
         if (editingNote) {
-          // Update existing note
+          // Update existing note - use 'Untitled Note' as fallback if title is empty
           await updateNote(editingNote.id, newNoteTitle.trim() || 'Untitled Note', newNoteContent.trim());
         } else {
-          // Create new note
+          // Create new note - use 'Untitled Note' as fallback if title is empty
           await addNote(newNoteTitle.trim() || 'Untitled Note', newNoteContent.trim());
         }
+        // Close the modal and reset form state after successful operation
         closeModal();
       } catch {
-        // Handle error silently
+        // Handle error silently - in production, consider showing user feedback
       }
     }
   };
 
+  /**
+   * Handles deleting a note with animation
+   * Adds visual feedback before performing the actual delete operation
+   * @param id - The ID of the note to delete
+   * @param event - Mouse event to get the target element for animation
+   */
   const handleDeleteNote = async (id: number, event: React.MouseEvent) => {
+    // Find the closest note box element to apply animation
     const noteElement = (event.target as HTMLElement).closest('.note-box');
     if (noteElement) {
+      // Add 'deleting' class to trigger CSS animation
       noteElement.classList.add('deleting');
       
       // Wait for animation to complete before actually deleting
       setTimeout(async () => {
         try {
+          // Perform the actual delete operation
           await removeNote(id);
         } catch {
-          // Handle error silently
+          // Handle error silently and revert animation state
           noteElement.classList.remove('deleting');
         }
-      }, 400); // Match the animation duration
+      }, 400); // Match the animation duration defined in CSS
     }
   };
 
+  /**
+   * Handles editing an existing note
+   * Populates the form with existing note data and opens the modal
+   * @param note - The note object containing id, title, and content
+   */
   const handleEditNote = (note: { id: number; title: string; content: string }) => {
+    // Set the note being edited to enable update mode
     setEditingNote(note);
+    // Pre-populate form fields with existing note data
     setNewNoteTitle(note.title);
     setNewNoteContent(note.content);
+    // Open the modal for editing
     setShowCreateModal(true);
   };
 
+  /**
+   * Closes the modal with animation and resets all form state
+   * Uses setTimeout to allow closing animation to complete before hiding modal
+   */
   const closeModal = () => {
+    // Trigger closing animation
     setIsClosing(true);
     setTimeout(() => {
+      // Hide modal and reset all form state after animation completes
       setShowCreateModal(false);
       setIsClosing(false);
       setNewNoteTitle('');
       setNewNoteContent('');
       setEditingNote(null);
-    }, 250); // Match the animation duration
+    }, 250); // Match the animation duration defined in CSS
   };
 
+  /**
+   * Handles cancel action - simply calls closeModal to reset everything
+   */
   const cancelCreate = () => {
     closeModal();
   };
