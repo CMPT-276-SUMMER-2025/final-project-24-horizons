@@ -83,7 +83,14 @@ app.use(helmet({
 // JWT Secret
 const JWT_SECRET = process.env.JWT_SECRET;
 
-// Verify Google token and create session
+// ========================================
+// AUTHENTICATION ENDPOINTS
+// ========================================
+
+/**
+ * Google OAuth authentication endpoint
+ * Verifies Google ID token and creates user session
+ */
 app.post('/api/auth/google', async (req, res) => {
   console.log('🔐 Google authentication request received');
   console.log('Request headers:', req.headers);
@@ -92,29 +99,31 @@ app.post('/api/auth/google', async (req, res) => {
   try {
     const { token } = req.body;
     
+    // Validate that a token was provided
     if (!token) {
       console.log('❌ No token provided in request');
       return res.status(400).json({ error: 'No token provided' });
     }
     
-    // Verify the Google token
+    // Verify the Google ID token with Google's servers
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     
+    // Extract user information from the verified token
     const payload = ticket.getPayload();
     console.log(`✅ Google token verified for user: ${payload.email}`);
     
-    // Create user object
+    // Create user object with extracted information
     const user = {
-      id: payload.sub,
+      id: payload.sub, // Google user ID
       email: payload.email,
       name: payload.name,
       picture: payload.picture,
     };
     
-    // Save/update user in database
+    // Save or update user in the database
     try {
       await dbManager.upsertUser(user);
       console.log(`💾 User saved to database: ${user.email}`);
@@ -123,17 +132,21 @@ app.post('/api/auth/google', async (req, res) => {
       return res.status(500).json({ error: 'Database error during authentication' });
     }
     
-    // Create JWT token
+    // Create JWT token for session management
     const jwtToken = jwt.sign(user, JWT_SECRET, { expiresIn: '7d' });
     
-    // Set HTTP-only cookie
+    // Set secure HTTP-only cookie with JWT token
+    // Cookie configuration depends on environment (dev vs production)
     res.cookie('auth_token', jwtToken, {
-      httpOnly: true,
-      secure: true, // Must be true for HTTPS
-      sameSite: 'none', // Required for cross-domain
-      path: '/',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-      domain: '.uttamsharma.com' // Add domain for subdomain cookies
+      httpOnly: true, // Prevents XSS attacks
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // CSRF protection
+      path: '/', // Cookie available for entire domain
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      // Conditionally set domain for production
+      ...(process.env.NODE_ENV === 'production' && process.env.COOKIE_DOMAIN && {
+        domain: process.env.COOKIE_DOMAIN
+      })
     });
     
     console.log(`🍪 Auth cookie set for user: ${user.email}`);
@@ -144,9 +157,11 @@ app.post('/api/auth/google', async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
     
+    // Send success response with user data
     res.json({ success: true, user });
   } catch (error) {
     console.error('❌ Auth error:', error);
+    // Handle specific token timing issues
     if (error.message.includes('Token used too early')) {
       return res.status(401).json({ error: 'Token timing issue, please try again' });
     }
@@ -154,14 +169,19 @@ app.post('/api/auth/google', async (req, res) => {
   }
 });
 
-// Enhanced JWT verification
+/**
+ * JWT Authentication middleware
+ * Verifies JWT token from cookies and sets req.user
+ */
 const authenticateToken = (req, res, next) => {
   console.log('🔍 Authenticating token...');
   console.log('Available cookies:', req.cookies);
   console.log('Headers:', req.headers);
   
+  // Extract JWT token from HTTP-only cookie
   const token = req.cookies.auth_token;
   
+  // Check if token exists
   if (!token) {
     console.log('❌ No token provided');
     return res.status(401).json({ 
@@ -171,11 +191,13 @@ const authenticateToken = (req, res, next) => {
   }
   
   try {
+    // Verify and decode JWT token
     const decoded = jwt.verify(token, JWT_SECRET);
     
-    // Add token expiry check
+    // Additional check for token expiry (belt and suspenders approach)
     if (decoded.exp && Date.now() >= decoded.exp * 1000) {
       console.log('❌ Token expired');
+      // Clear expired cookie
       res.clearCookie('auth_token', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -189,10 +211,12 @@ const authenticateToken = (req, res, next) => {
     }
     
     console.log(`✅ Token verified for user: ${decoded.email}`);
+    // Set user data in request object for use in route handlers
     req.user = decoded;
     next();
   } catch (error) {
     console.error('❌ Token verification failed:', error.message);
+    // Clear invalid cookie
     res.clearCookie('auth_token', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -206,15 +230,21 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Get current user
+/**
+ * Get current authenticated user information
+ */
 app.get('/api/auth/me', authenticateToken, (req, res) => {
   console.log(`👤 Current user request for: ${req.user.email}`);
   res.json({ user: req.user });
 });
 
-// Logout
+/**
+ * User logout endpoint
+ * Clears authentication cookie
+ */
 app.post('/api/auth/logout', (req, res) => {
   console.log('🚪 Logout request received');
+  // Clear authentication cookie
   res.clearCookie('auth_token', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
@@ -225,15 +255,23 @@ app.post('/api/auth/logout', (req, res) => {
   res.json({ success: true });
 });
 
-// Health check endpoint
+/**
+ * Health check endpoint for monitoring
+ */
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Initialize database
+// Initialize database connection before starting routes
 await dbManager.initialize();
 
-// Get user's goals
+// ========================================
+// USER GOALS ENDPOINTS
+// ========================================
+
+/**
+ * Get all goals for the authenticated user
+ */
 app.get('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`🎯 Goals request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -247,12 +285,15 @@ app.get('/api/user/goals', authenticateToken, async (req, res) => {
   }
 });
 
-// Add a goal for the user
+/**
+ * Add a new goal for the authenticated user
+ */
 app.post('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`➕ Add goal request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { goal } = req.body;
   
+  // Validate goal input
   if (!goal || typeof goal !== 'string' || !goal.trim()) {
     return res.status(400).json({ error: 'Goal is required and must be a non-empty string' });
   }
@@ -260,12 +301,13 @@ app.post('/api/user/goals', authenticateToken, async (req, res) => {
   const trimmedGoal = goal.trim();
   
   try {
-    // Check if goal already exists
+    // Check if goal already exists to prevent duplicates
     const currentGoals = await dbManager.getUserGoals(userId);
     if (currentGoals.includes(trimmedGoal)) {
       return res.status(400).json({ error: 'Goal already exists' });
     }
     
+    // Create new goal in database
     await dbManager.createGoal(userId, trimmedGoal);
     const updatedGoals = await dbManager.getUserGoals(userId);
     
@@ -277,7 +319,9 @@ app.post('/api/user/goals', authenticateToken, async (req, res) => {
   }
 });
 
-// Remove a goal for the user
+/**
+ * Remove a specific goal by index
+ */
 app.delete('/api/user/goals/:index', authenticateToken, async (req, res) => {
   console.log(`🗑️ Remove goal request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -299,22 +343,26 @@ app.delete('/api/user/goals/:index', authenticateToken, async (req, res) => {
   }
 });
 
-// Update all goals for the user (bulk update)
+/**
+ * Update all goals for the user (bulk update)
+ * Replaces entire goals list with new array
+ */
 app.put('/api/user/goals', authenticateToken, async (req, res) => {
   console.log(`📝 Update goals request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { goals } = req.body;
   
+  // Validate input is an array
   if (!Array.isArray(goals)) {
     return res.status(400).json({ error: 'Goals must be an array' });
   }
   
-  // Validate each goal
+  // Filter and validate each goal, removing empty ones
   const validGoals = goals.filter(goal => 
     typeof goal === 'string' && goal.trim().length > 0
   ).map(goal => goal.trim());
   
-  // Remove duplicates
+  // Remove duplicates using Set
   const uniqueGoals = [...new Set(validGoals)];
   
   try {
@@ -328,9 +376,13 @@ app.put('/api/user/goals', authenticateToken, async (req, res) => {
   }
 });
 
-// Notes API endpoints
+// ========================================
+// NOTES ENDPOINTS
+// ========================================
 
-// Get user's notes
+/**
+ * Get all notes for the authenticated user
+ */
 app.get('/api/notes', authenticateToken, async (req, res) => {
   console.log(`📝 Notes request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -344,17 +396,21 @@ app.get('/api/notes', authenticateToken, async (req, res) => {
   }
 });
 
-// Create a new note
+/**
+ * Create a new note for the authenticated user
+ */
 app.post('/api/notes', authenticateToken, async (req, res) => {
   console.log(`➕ Add note request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { title, content } = req.body;
   
+  // Require at least title or content
   if (!title && !content) {
     return res.status(400).json({ error: 'Title or content is required' });
   }
   
   try {
+    // Create note with default title if none provided
     const newNote = await dbManager.createNote(
       userId, 
       title?.trim() || 'Untitled Note', 
@@ -369,7 +425,10 @@ app.post('/api/notes', authenticateToken, async (req, res) => {
   }
 });
 
-// Update a note
+/**
+ * Update an existing note
+ * Only allows users to update their own notes
+ */
 app.put('/api/notes/:id', authenticateToken, async (req, res) => {
   console.log(`📝 Update note request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -384,6 +443,7 @@ app.put('/api/notes/:id', authenticateToken, async (req, res) => {
       content?.trim() || ''
     );
     
+    // Check if note was found and belongs to user
     if (!updatedNote) {
       return res.status(404).json({ error: 'Note not found' });
     }
@@ -396,7 +456,10 @@ app.put('/api/notes/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Delete a note
+/**
+ * Delete a specific note
+ * Only allows users to delete their own notes
+ */
 app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
   console.log(`🗑️ Delete note request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -405,6 +468,7 @@ app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
   try {
     const result = await dbManager.deleteNote(noteId, userId);
     
+    // Check if any rows were affected (note existed and was deleted)
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Note not found' });
     }
@@ -417,12 +481,16 @@ app.delete('/api/notes/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Search notes endpoint
+/**
+ * Search notes by title and content
+ * Only searches within user's own notes
+ */
 app.get('/api/notes/search', authenticateToken, async (req, res) => {
   console.log(`🔍 Search notes request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { q: searchTerm } = req.query;
   
+  // Validate search term
   if (!searchTerm || typeof searchTerm !== 'string' || !searchTerm.trim()) {
     return res.status(400).json({ error: 'Search term is required' });
   }
@@ -437,9 +505,13 @@ app.get('/api/notes/search', authenticateToken, async (req, res) => {
   }
 });
 
-// Flashcards API endpoints
+// ========================================
+// FLASHCARDS ENDPOINTS
+// ========================================
 
-// Get user's flashcards
+/**
+ * Get all flashcards for the authenticated user
+ */
 app.get('/api/flashcards', authenticateToken, async (req, res) => {
   console.log(`🃏 Flashcards request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -453,17 +525,21 @@ app.get('/api/flashcards', authenticateToken, async (req, res) => {
   }
 });
 
-// Create a new flashcard
+/**
+ * Create a new flashcard for the authenticated user
+ */
 app.post('/api/flashcards', authenticateToken, async (req, res) => {
   console.log(`➕ Add flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
   const { front, back } = req.body;
   
+  // Require at least front or back content
   if (!front && !back) {
     return res.status(400).json({ error: 'Front or back is required' });
   }
   
   try {
+    // Create flashcard with default front text if none provided
     const newFlashcard = await dbManager.createFlashcard(
       userId,
       front?.trim() || 'Untitled Front',
@@ -478,7 +554,10 @@ app.post('/api/flashcards', authenticateToken, async (req, res) => {
   }
 });
 
-// Update a flashcard
+/**
+ * Update an existing flashcard
+ * Only allows users to update their own flashcards
+ */
 app.put('/api/flashcards/:id', authenticateToken, async (req, res) => {
   console.log(`📝 Update flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -493,6 +572,7 @@ app.put('/api/flashcards/:id', authenticateToken, async (req, res) => {
       back?.trim() || ''
     );
     
+    // Check if flashcard was found and belongs to user
     if (!updatedFlashcard) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
@@ -505,7 +585,10 @@ app.put('/api/flashcards/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Delete a flashcard
+/**
+ * Delete a specific flashcard
+ * Only allows users to delete their own flashcards
+ */
 app.delete('/api/flashcards/:id', authenticateToken, async (req, res) => {
   console.log(`🗑️ Delete flashcard request for user: ${req.user.email}`);
   const userId = req.user.id;
@@ -514,6 +597,7 @@ app.delete('/api/flashcards/:id', authenticateToken, async (req, res) => {
   try {
     const result = await dbManager.deleteFlashcard(flashcardId, userId);
     
+    // Check if any rows were affected (flashcard existed and was deleted)
     if (result.changes === 0) {
       return res.status(404).json({ error: 'Flashcard not found' });
     }
@@ -526,18 +610,35 @@ app.delete('/api/flashcards/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Protected routes
+// ========================================
+// MISCELLANEOUS ENDPOINTS
+// ========================================
+
+/**
+ * Protected dashboard route example
+ * Demonstrates authenticated route usage
+ */
 app.get('/api/user/dashboard', authenticateToken, (req, res) => {
   console.log(`📊 Dashboard data request for: ${req.user.email}`);
   res.json({ message: 'Dashboard data', user: req.user });
 });
 
-// Error handling middleware
+// ========================================
+// ERROR HANDLING & SERVER STARTUP
+// ========================================
+
+/**
+ * Global error handling middleware
+ * Catches any unhandled errors in route handlers
+ */
 app.use((error, req, res, next) => {
   console.error('💥 Unhandled error:', error);
   res.status(500).json({ error: 'Internal server error' });
 });
 
+/**
+ * Start the Express server
+ */
 app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`🌍 CORS enabled for: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
@@ -546,13 +647,24 @@ app.listen(PORT, async () => {
   console.log(`💾 Database path: ${process.env.DATABASE_PATH || './database/studysync.db'}`);
 });
 
-// Graceful shutdown
+// ========================================
+// GRACEFUL SHUTDOWN HANDLERS
+// ========================================
+
+/**
+ * Handle SIGINT signal (Ctrl+C)
+ * Ensures database connections are properly closed
+ */
 process.on('SIGINT', () => {
   console.log('🛑 Received SIGINT. Shutting down gracefully...');
   dbManager.close();
   process.exit(0);
 });
 
+/**
+ * Handle SIGTERM signal (process termination)
+ * Ensures database connections are properly closed
+ */
 process.on('SIGTERM', () => {
   console.log('🛑 Received SIGTERM. Shutting down gracefully...');
   dbManager.close();
