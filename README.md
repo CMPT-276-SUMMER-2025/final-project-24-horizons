@@ -22,13 +22,17 @@ A full-stack web application for student productivity and note-taking, built wit
    ```bash
    npm install
    ```
+  - Note: if running on mac you will first have to remove the package-lock.json file before running the ```npm install```command 
+
 
 3. **Install backend dependencies**
+
    ```bash
    cd backend
    npm install
    cd ..
    ```
+   - Note: if running on mac you will first have to remove the package-lock.json file before running the ```npm install```command 
 
 4. **Environment Setup**
 
