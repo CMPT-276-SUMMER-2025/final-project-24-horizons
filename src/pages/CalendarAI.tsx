@@ -28,7 +28,7 @@ const CalendarAI = () => {
     {
       id: 1,
       type: 'ai',
-      content: "Hi! I'm your AI calendar assistant. I can help you add, delete, move, and manage your events. Try saying something like 'add meeting tomorrow at 2pm'"
+      content: "Hi! I'm your AI calendar assistant. I can help you add, delete, move, and manage your events. Try saying something like 'add meeting for 25 August at 3 PM' or 'delete my meeting on 25 August'.",
     }
   ]);
   const [isPanelOpen, setIsPanelOpen] = useState(true);
@@ -202,7 +202,7 @@ const CalendarAI = () => {
     const input = userInput.toLowerCase();
 
     // Check for any calendar action keywords
-    const actionKeywords = ['add', 'block', 'schedule', 'book', 'create', 'delete', 'remove', 'move', 'change', 'update', 'reschedule', 'cancel'];
+    const actionKeywords = ['add', 'block', 'schedule', 'book', 'create', 'delete', 'remove', 'move', 'change', 'update', 'reschedule', 'cancel', 'clear'];
     const hasAction = actionKeywords.some(keyword => input.includes(keyword));
 
     if (!hasAction) {
@@ -251,7 +251,11 @@ const CalendarAI = () => {
     }
     
     User request: "${userInput}"
-    Current date: ${new Date().toISOString().split('T')[0]}
+    IMPORTANT DATE CONTEXT:
+    - Today is: ${new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} (${new Date().toISOString().split('T')[0]})
+    - Tomorrow is: ${new Date(Date.now() + 86400000).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} (${new Date(Date.now() + 86400000).toISOString().split('T')[0]})
+    - If user says "tomorrow", use: ${new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+    - If user says "today", use: ${new Date().toISOString().split('T')[0]}
     
     If you cannot parse the request, respond with: {"action": "none"}
     `;
@@ -277,7 +281,7 @@ const CalendarAI = () => {
             title: parsedData.title || 'New Event',
             date: parsedData.date ? (() => {
               const [year, month, day] = parsedData.date.split('-').map(Number);
-              return new Date(year, month - 1, day);
+              return new Date(year, month - 1, day, 12, 0, 0, 0);
             })() : new Date(),
             time: parsedData.time || '14:00',
             description: parsedData.description || 'Added by AI Assistant',
