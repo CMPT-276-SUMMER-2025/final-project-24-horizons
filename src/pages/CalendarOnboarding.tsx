@@ -6,6 +6,8 @@ import { useCalendar } from '../services/calendarContext';
 import { useGoals } from '../services/goalsContext';
 import type { CalendarEvent } from '../services/calendarContext';
 import { GraduationCap, CalendarPlus, MailPlus, Check, Trash2} from 'lucide-react';
+import { collection, deleteDoc, query, where, getDocs } from 'firebase/firestore';
+import { db } from '../firebase/config';
 
 
 // Global type declaration for Google APIs
@@ -88,8 +90,17 @@ const CalendarOnboarding: React.FC = () => {
    * Also resets input fields for Canvas and ICS URLs
    */
 
-  const resetCalendar = () => {
+  const resetCalendar = async () => {
   clearEvents();
+  try {
+    const q = query(collection(db, 'events'), where('userId', '==', 'demo-user'));
+    const snapshot = await getDocs(q);
+    
+    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+  } catch (error) {
+    console.error('Error clearing Firebase events:', error);
+  }
   setCanvasUrl('');
   setIcsUrl('');
   alert('Calendar cleared! All imported events and input fields have been reset.');
