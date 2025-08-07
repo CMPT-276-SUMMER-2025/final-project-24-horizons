@@ -9,13 +9,14 @@
     "lint": "eslint . --fix",
     "preview": "vite preview",
     "test:features": "node src/tests/import.test.js && node src/tests/gemini.test.js && node src/tests/crud.test.js",
-    "test:integration": "node src/tests/import-integration.test.js && node src/tests/gemini-integration.test.js",
+    "test:integration": "node src/tests/import-integration.test.js && node src/tests/gemini-integration.test.js && node src/tests/crud-integration.test.js",
     "test:nav": "node src/tests/navigation-check.js",
     "test:health": "node src/tests/health-check.js",
     "test:comprehensive": "node src/tests/comprehensive-health-check.js",
     "test:notes": "node src/tests/notes.test.js",
     "test:flashcards": "node src/tests/flashcards.test.js",
     "test:crud": "node src/tests/crud.test.js",
+    "test:crud-integration": "node src/tests/crud-integration.test.js",
     "test:all": "npm run test:features && npm run test:integration && npm run test:nav && npm run test:health && npm run test:crud"
   },
   "dependencies": {
