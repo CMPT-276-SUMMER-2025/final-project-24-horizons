@@ -1,6 +1,10 @@
 # StudySync
 
-A full-stack web application for student productivity and note-taking, built with React, Vite, and Node.js.
+A full-stack web application for student productivity and note-taking, built with Vite, and Node.js.
+
+[StudySync Website](https://studysync-ai.netlify.app)
+
+[Milestone 2 Report](./docs/final/Milestone_2_Final_Report.pdf)
 
 ## 🚀 Quick Start
 
