@@ -4,7 +4,6 @@ A full-stack web application for student productivity and note-taking, built wit
 
 [StudySync Website](https://studysync-ai.netlify.app)
 
-[Milestone 2 Report](./docs/final/Milestone_2_Final_Report.pdf)
 
 ## 🚀 Quick Start
 
@@ -13,7 +12,7 @@ A full-stack web application for student productivity and note-taking, built wit
 - Node.js (v16 or higher)
 - npm or yarn package manager
 - Git
-
+ 
 ### Local Development Setup
 
 1. **Clone the repository**
